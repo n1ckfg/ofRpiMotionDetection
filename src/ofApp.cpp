@@ -15,7 +15,7 @@ void ofApp::setup(){
     ofLog() << "RPid " << RPiId;
     gui.setup("panel");
     gui.setPosition(650,10);
-    gui.add(cutDown.set( "cutDown", 100, 1, 255 ));
+    gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 16, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
     gui.add(backgroundThreshold.set("backgroundThreshold",15,1,300));

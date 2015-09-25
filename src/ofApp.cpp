@@ -26,7 +26,14 @@ void ofApp::setup(){
     gui.add(maxContourArea.set("maxContourArea",(160*120)/3,40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
-    
+
+    filename = "RPi_" + RPiId + "_params";
+
+    if(ofFile::doesFileExist(filename)){
+        ofLog(OF_LOG_NOTICE)<< "loading from file" + filename << endl;
+        gui.loadFromFile(filename);
+    }
+
     consoleListener.setup(this);
     consoleListener.startThread(false, false);
 
@@ -48,9 +55,11 @@ void ofApp::setup(){
 #else
     cam.initGrabber(160,120);
 #endif
-    
+
 
     sender.setup("192.168.255.255", 8000);
+    //sender.setup("127.0.0.1", 8000);
+ 	receiver.setup(OSC_PORT);
 }
 
 static int framenr = 1;
@@ -63,11 +72,11 @@ void ofApp::update(){
     frame = Mat(cam.grab());
     stringstream ss;
     ss << "rpi_" << RPiId << ".png";
-    if(framenr % 100 == 0) {    
+    if(framenr % 100 == 0) {
       toOf(frame,tosave);
-    
+
       ofSaveImage(tosave, ss.str());
-    } 
+    }
 #else
     ofImage image;
 
@@ -76,17 +85,17 @@ void ofApp::update(){
     image.loadImage(filename.str());
     image.rotate90(2);
     frame = toCv(image);
-    
+
 #endif
 
     if (framenr == 130) {
         background.reset();
     }
- 
+
     if (!frame.empty()) {
 
         //threshold( frame, frame, cutDown, 255,2 );
-       
+
         background.update(frame, thresholded);
         thresholded.update();
 
@@ -100,7 +109,7 @@ void ofApp::update(){
         toOf(frameProcessed, pix);
         grayImage.setFromPixels(pix);
 
-        
+
         contourFinder.findContours(grayImage, minContourArea, maxContourArea, maxContours, true); // find holes
 
         ofxOscMessage numContours;
@@ -120,7 +129,7 @@ void ofApp::update(){
             float y = contourFinder.blobs[i].boundingRect.y;
             float width = contourFinder.blobs[i].boundingRect.width;
             float height = contourFinder.blobs[i].boundingRect.height;
-            
+
             //normalization
             x = x / 160;
             y = y / 120;
@@ -141,15 +150,111 @@ void ofApp::update(){
             message.addFloatArg(height);
 
             sender.sendMessage(message);
+            //ofLog() << x << " and " << y;
         }
     }
 
-    
+	// hide old messages
+	for(int i = 0; i < NUM_MSG_STRINGS; i++){
+		if(timers[i] < ofGetElapsedTimef()){
+			msg_strings[i] = "";
+		}
+	}
+
+	// check for waiting messages
+	while(receiver.hasWaitingMessages()){
+		// get the next message
+		ofxOscMessage rm;//receivedMessage
+		ofxOscMessage sm;//sentMessage
+		receiver.getNextMessage(&rm);
+                //probably we need to move it out of the update
+            if(rm.getAddress() == "/save"){
+
+                gui.saveToFile(filename.str());
+            }
+            if(rm.getAddress() == "/getParams"){
+                sm.setAddress("/allParams");
+                sm.addIntArg(cutDown);
+                sm.addIntArg(fps);
+                sm.addIntArg(learningTime);
+                sm.addIntArg(backgroundThreshold);
+                sm.addIntArg(erodeFactor);
+                sm.addIntArg(dilateFactor);
+                sm.addIntArg(medianBlurFactor);
+                sm.addIntArg(minContourArea);
+                sm.addIntArg(maxContourArea);
+                sm.addIntArg(maxContours);
+
+                sender.sendMessage(sm);
+            }
+            else if(rm.getAddress() == "/cutDown"){
+                cutDown = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/fps"){
+                fps = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/learningTime"){
+                learningTime = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/backgroundThreshold"){
+                backgroundThreshold = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/erodeFactor"){
+                erodeFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/dilateFactor"){
+                dilateFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/medianBlurFactor"){
+                medianBlurFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/minContourArea"){
+                minContourArea = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/maxContourArea"){
+                maxContourArea = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/maxContours"){
+                maxContours = rm.getArgAsInt32(0);
+            }
+			// oscReceiverExample
+			// unrecognized message: display on the bottom of the screen
+			/*string msg_string;
+			msg_string = rm.getAddress();
+			msg_string += ": ";
+			for(int i = 0; i < rm.getNumArgs(); i++){
+				// get the argument type
+				msg_string += rm.getArgTypeName(i);
+				msg_string += ":";
+				// display the argument - make sure we get the right type
+				if(rm.getArgType(i) == OFXOSC_TYPE_INT32){
+					msg_string += ofToString(rm.getArgAsInt32(i));
+				}
+				else if(rm.getArgType(i) == OFXOSC_TYPE_FLOAT){
+					msg_string += ofToString(rm.getArgAsFloat(i));
+				}
+				else if(rm.getArgType(i) == OFXOSC_TYPE_STRING){
+					msg_string += rm.getArgAsString(i);
+				}
+				else{
+					msg_string += "unknown";
+				}
+			}
+			// add to the list of strings to display
+			msg_strings[current_msg_string] = msg_string;
+			timers[current_msg_string] = ofGetElapsedTimef() + 5.0f;
+			current_msg_string = (current_msg_string + 1) % NUM_MSG_STRINGS;
+			// clear the next line
+			msg_strings[current_msg_string] = "";
+			std::cout << msg_string << std::endl;*/
+	}
+
+
 }
 
 //-- Parameters events listeners
 
-void ofApp::fpsChanged(int & fps) {
+void ofApp::fpsChanged(int &fps) {
     ofSetFrameRate(fps);
 }
 
@@ -163,13 +268,13 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    drawMat(frame,0,0,320,240);
+    /*drawMat(frame,0,0,320,240);
     drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
 
     contourFinder.draw(320,240,320,240);
 
-    gui.draw();
+    gui.draw();*/
 }
 
 //--------------------------------------------------------------
@@ -222,6 +327,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }

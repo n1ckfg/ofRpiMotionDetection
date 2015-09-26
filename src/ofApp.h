@@ -24,7 +24,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void setup();
 		void update();
 		void draw();
-		
+
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -33,12 +33,12 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);	
-		void fpsChanged(int & fps);	
+		void gotMessage(ofMessage msg);
+		void fpsChanged(int & fps);
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
 		string RPiId;
-		
+
         int thresh;
     private:
 #ifdef __arm__
@@ -59,7 +59,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         Mat frame,frameProcessed;
         ofxCv::RunningBackground background;
         ConsoleListener consoleListener;
-        void onCharacterReceived(SSHKeyListenerEventData& e);	
+        void onCharacterReceived(SSHKeyListenerEventData& e);
         ofxCvContourFinder 	contourFinder;
         ofxCvGrayscaleImage    grayImage;
 
@@ -76,7 +76,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> maxContours;
 
 		ofxPanel gui;
-		
+
 		ofPixels tosave;
 };
 

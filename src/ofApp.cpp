@@ -26,7 +26,14 @@ void ofApp::setup(){
     gui.add(maxContourArea.set("maxContourArea",(160*120)/3,40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
-    
+
+    filename_save = "RPi_" + RPiId + "_params";
+
+    if(ofFile::doesFileExist(filename_save)){
+        ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
+        gui.loadFromFile(filename_save);
+    }
+
     consoleListener.setup(this);
     consoleListener.startThread(false, false);
 
@@ -48,9 +55,11 @@ void ofApp::setup(){
 #else
     cam.initGrabber(160,120);
 #endif
-    
+
 
     sender.setup("192.168.255.255", 8000);
+    //sender.setup("127.0.0.1", 8000);
+ 	receiver.setup(OSC_PORT);
 }
 
 static int framenr = 1;
@@ -63,11 +72,11 @@ void ofApp::update(){
     frame = Mat(cam.grab());
     stringstream ss;
     ss << "rpi_" << RPiId << ".png";
-    if(framenr % 100 == 0) {    
+    if(framenr % 100 == 0) {
       toOf(frame,tosave);
-    
+
       ofSaveImage(tosave, ss.str());
-    } 
+    }
 #else
     ofImage image;
 
@@ -76,17 +85,17 @@ void ofApp::update(){
     image.loadImage(filename.str());
     image.rotate90(2);
     frame = toCv(image);
-    
+
 #endif
 
     if (framenr == 130) {
         background.reset();
     }
- 
+
     if (!frame.empty()) {
 
         //threshold( frame, frame, cutDown, 255,2 );
-       
+
         background.update(frame, thresholded);
         thresholded.update();
 
@@ -100,7 +109,7 @@ void ofApp::update(){
         toOf(frameProcessed, pix);
         grayImage.setFromPixels(pix);
 
-        
+
         contourFinder.findContours(grayImage, minContourArea, maxContourArea, maxContours, true); // find holes
 
         ofxOscMessage numContours;
@@ -120,7 +129,7 @@ void ofApp::update(){
             float y = contourFinder.blobs[i].boundingRect.y;
             float width = contourFinder.blobs[i].boundingRect.width;
             float height = contourFinder.blobs[i].boundingRect.height;
-            
+
             //normalization
             x = x / 160;
             y = y / 120;
@@ -141,6 +150,7 @@ void ofApp::update(){
             message.addFloatArg(height);
 
             sender.sendMessage(message);
+            //ofLog() << x << " and " << y;
         }
     }
 	// hide old messages
@@ -212,12 +222,11 @@ void ofApp::update(){
                 maxContours = rm.getArgAsInt32(0);
             }
 	}
-    
 }
 
 //-- Parameters events listeners
 
-void ofApp::fpsChanged(int & fps) {
+void ofApp::fpsChanged(int &fps) {
     ofSetFrameRate(fps);
 }
 
@@ -231,6 +240,7 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+#ifdef __arm__
     drawMat(frame,0,0,320,240);
     drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
@@ -238,6 +248,7 @@ void ofApp::draw(){
     contourFinder.draw(320,240,320,240);
 
     gui.draw();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -290,6 +301,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }

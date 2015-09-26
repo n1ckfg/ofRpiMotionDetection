@@ -174,6 +174,7 @@ void ofApp::update(){
             }
             if(rm.getAddress() == "/getParams"){
                 sm.setAddress("/allParams");
+                sm.addIntArg(RPiId);
                 sm.addIntArg(cutDown);
                 sm.addIntArg(fps);
                 sm.addIntArg(learningTime);
@@ -187,34 +188,38 @@ void ofApp::update(){
 
                 sender.sendMessage(sm);
             }
-            else if(rm.getAddress() == "/cutDown"){
+            else if(rm.getAddress() == "/whoIsThere"){
+                sm.setAddress("/RPiId");
+                sm.addIntArg("RPiId");
+            }
+            else if(rm.getAddress() == "/cutDown" + RPiId){
                 cutDown = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/fps"){
+            else if(rm.getAddress() == "/fps" + RPiId){
                 fps = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/learningTime"){
+            else if(rm.getAddress() == "/learningTime" + RPiId){
                 learningTime = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/backgroundThreshold"){
+            else if(rm.getAddress() == "/backgroundThreshold" + RPiId){
                 backgroundThreshold = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/erodeFactor"){
+            else if(rm.getAddress() == "/erodeFactor" + RPiId){
                 erodeFactor = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/dilateFactor"){
+            else if(rm.getAddress() == "/dilateFactor" + RPiId){
                 dilateFactor = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/medianBlurFactor"){
+            else if(rm.getAddress() == "/medianBlurFactor" + RPiId){
                 medianBlurFactor = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/minContourArea"){
+            else if(rm.getAddress() == "/minContourArea" + RPiId){
                 minContourArea = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/maxContourArea"){
+            else if(rm.getAddress() == "/maxContourArea" + RPiId){
                 maxContourArea = rm.getArgAsInt32(0);
             }
-            else if(rm.getAddress() == "/maxContours"){
+            else if(rm.getAddress() == "/maxContours" + RPiId){
                 maxContours = rm.getArgAsInt32(0);
             }
 			// oscReceiverExample
@@ -268,7 +273,7 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-#ifndef __arm__
+#ifdef __arm__
     drawMat(frame,0,0,320,240);
     drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);

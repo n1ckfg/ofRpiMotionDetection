@@ -61,7 +61,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         ofxCvContourFinder 	contourFinder;
         ofxCvGrayscaleImage    grayImage;
 
-        string filename;
+        string filename_save;
         //parameters
         ofParameter<int> cutDown;
 		ofParameter<int> fps;

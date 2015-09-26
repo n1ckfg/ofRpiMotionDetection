@@ -13,3 +13,5 @@ This project is in line with the work developed for the interactive park in Tron
 #noWindowExample
 
 Contains basic OpenFrameworks project which runs without GUI.
+
+-dummy

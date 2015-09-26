@@ -268,13 +268,15 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    /*drawMat(frame,0,0,320,240);
+#ifndef __arm__
+    drawMat(frame,0,0,320,240);
     drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
 
     contourFinder.draw(320,240,320,240);
 
-    gui.draw();*/
+    gui.draw();
+#endif
 }
 
 //--------------------------------------------------------------

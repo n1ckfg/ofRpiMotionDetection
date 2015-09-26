@@ -27,12 +27,12 @@ void ofApp::setup(){
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
 
-    filename_save = "RPi_" + RPiId + "_params";
+    /*filename_save = "RPi_" + RPiId + "_params";
 
     if(ofFile::doesFileExist(filename_save)){
         ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
         gui.loadFromFile(filename_save);
-    }
+    }*/
 
     consoleListener.setup(this);
     consoleListener.startThread(false, false);
@@ -167,10 +167,10 @@ void ofApp::update(){
 		ofxOscMessage sm;//sentMessage
 		receiver.getNextMessage(&rm);
                 //probably we need to move it out of the update
-            if(rm.getAddress() == "/save"){
+           /* if(rm.getAddress() == "/save"){
 
                 gui.saveToFile(filename_save);
-            }
+            }*/
             if(rm.getAddress() == "/getParams"){
                 sm.setAddress("/allParams");
                 sm.addStringArg(RPiId);
@@ -190,6 +190,7 @@ void ofApp::update(){
             else if(rm.getAddress() == "/whoIsThere"){
                 sm.setAddress("/RPiId");
                 sm.addStringArg("RPiId");
+                sender.sendMessage(sm);
             }
             else if(rm.getAddress() == "/cutDown" + RPiId){
                 cutDown = rm.getArgAsInt32(0);
@@ -240,7 +241,7 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-#ifdef __arm__
+//#ifdef __arm__
     drawMat(frame,0,0,320,240);
     drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
@@ -248,7 +249,7 @@ void ofApp::draw(){
     contourFinder.draw(320,240,320,240);
 
     gui.draw();
-#endif
+//#endif
 }
 
 //--------------------------------------------------------------

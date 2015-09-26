@@ -6,9 +6,9 @@
 int main(int argc, char *argv[] ){
 
 
-   // ofAppBaseWindow* pWindow = new ofAppNoWindow();
+    //ofAppBaseWindow* pWindow = new ofAppNoWindow();
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	//ofSetupOpenGL(pWindow,1280,720, OF_WINDOW);			// <-------- setup the GL context
+	//ofSetupOpenGL(pWindow,1280,720, OF_WINDOW);
 	ofSetupOpenGL(1280,720, OF_WINDOW);			// <-------- setup the GL context
 	ofApp *app = new ofApp();
 	if (argc > 1)

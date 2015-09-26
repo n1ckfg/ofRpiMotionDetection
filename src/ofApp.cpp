@@ -190,7 +190,7 @@ void ofApp::update(){
             }
             else if(rm.getAddress() == "/whoIsThere"){
                 sm.setAddress("/RPiId");
-                sm.addIntArg("RPiId");
+                sm.addStringArg("RPiId");
             }
             else if(rm.getAddress() == "/cutDown" + RPiId){
                 cutDown = rm.getArgAsInt32(0);

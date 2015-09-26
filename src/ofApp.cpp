@@ -174,7 +174,7 @@ void ofApp::update(){
             }
             if(rm.getAddress() == "/getParams"){
                 sm.setAddress("/allParams");
-                sm.addIntArg(RPiId);
+                sm.addStringArg(RPiId);
                 sm.addIntArg(cutDown);
                 sm.addIntArg(fps);
                 sm.addIntArg(learningTime);

@@ -143,7 +143,75 @@ void ofApp::update(){
             sender.sendMessage(message);
         }
     }
+	// hide old messages
+	for(int i = 0; i < NUM_MSG_STRINGS; i++){
+		if(timers[i] < ofGetElapsedTimef()){
+			msg_strings[i] = "";
+		}
+	}
 
+	// check for waiting messages
+	while(receiver.hasWaitingMessages()){
+		// get the next message
+		ofxOscMessage rm;//receivedMessage
+		ofxOscMessage sm;//sentMessage
+		receiver.getNextMessage(&rm);
+                //probably we need to move it out of the update
+            if(rm.getAddress() == "/save"){
+
+                gui.saveToFile(filename_save);
+            }
+            if(rm.getAddress() == "/getParams"){
+                sm.setAddress("/allParams");
+                sm.addStringArg(RPiId);
+                sm.addIntArg(cutDown);
+                sm.addIntArg(fps);
+                sm.addIntArg(learningTime);
+                sm.addIntArg(backgroundThreshold);
+                sm.addIntArg(erodeFactor);
+                sm.addIntArg(dilateFactor);
+                sm.addIntArg(medianBlurFactor);
+                sm.addIntArg(minContourArea);
+                sm.addIntArg(maxContourArea);
+                sm.addIntArg(maxContours);
+
+                sender.sendMessage(sm);
+            }
+            else if(rm.getAddress() == "/whoIsThere"){
+                sm.setAddress("/RPiId");
+                sm.addStringArg("RPiId");
+            }
+            else if(rm.getAddress() == "/cutDown" + RPiId){
+                cutDown = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/fps" + RPiId){
+                fps = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/learningTime" + RPiId){
+                learningTime = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/backgroundThreshold" + RPiId){
+                backgroundThreshold = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/erodeFactor" + RPiId){
+                erodeFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/dilateFactor" + RPiId){
+                dilateFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/medianBlurFactor" + RPiId){
+                medianBlurFactor = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/minContourArea" + RPiId){
+                minContourArea = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/maxContourArea" + RPiId){
+                maxContourArea = rm.getArgAsInt32(0);
+            }
+            else if(rm.getAddress() == "/maxContours" + RPiId){
+                maxContours = rm.getArgAsInt32(0);
+            }
+	}
     
 }
 

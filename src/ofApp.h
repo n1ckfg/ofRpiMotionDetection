@@ -10,6 +10,9 @@
 #include "ofxOpenCv.h"
 #include "ofxGui.h"
 
+#define NUM_MSG_STRINGS 20
+#define OSC_PORT 8001
+
 using namespace ofxCv;
 using namespace cv;
 
@@ -44,6 +47,14 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         ofVideoGrabber cam;
 #endif
         ofxOscSender sender;
+        ofxOscReceiver receiver;
+
+		string filename_save;
+
+        int current_msg_string;
+		string msg_strings[NUM_MSG_STRINGS];
+		float timers[NUM_MSG_STRINGS];
+
         ofImage thresholded;
         Mat frame,frameProcessed;
         ofxCv::RunningBackground background;

@@ -27,11 +27,11 @@ void ofApp::setup(){
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
 
-    filename = "RPi_" + RPiId + "_params";
+    filename_save = "RPi_" + RPiId + "_params";
 
-    if(ofFile::doesFileExist(filename)){
-        ofLog(OF_LOG_NOTICE)<< "loading from file" + filename << endl;
-        gui.loadFromFile(filename);
+    if(ofFile::doesFileExist(filename_save)){
+        ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
+        gui.loadFromFile(filename_save);
     }
 
     consoleListener.setup(this);
@@ -170,7 +170,7 @@ void ofApp::update(){
                 //probably we need to move it out of the update
             if(rm.getAddress() == "/save"){
 
-                gui.saveToFile(filename.str());
+                gui.saveToFile(filename_save);
             }
             if(rm.getAddress() == "/getParams"){
                 sm.setAddress("/allParams");

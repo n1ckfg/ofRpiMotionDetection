@@ -27,12 +27,12 @@ void ofApp::setup(){
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
 
-    /*filename_save = "RPi_" + RPiId + "_params";
+    filename_save = "RPi_" + RPiId + "_params.json";
 
     if(ofFile::doesFileExist(filename_save)){
         ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
         gui.loadFromFile(filename_save);
-    }*/
+    }
 
     consoleListener.setup(this);
     consoleListener.startThread(false, false);
@@ -167,10 +167,10 @@ void ofApp::update(){
 		ofxOscMessage sm;//sentMessage
 		receiver.getNextMessage(&rm);
                 //probably we need to move it out of the update
-           /* if(rm.getAddress() == "/save"){
+            if(rm.getAddress() == "/save"){
 
                 gui.saveToFile(filename_save);
-            }*/
+            }
             if(rm.getAddress() == "/getParams"){
                 sm.setAddress("/allParams");
                 sm.addStringArg(RPiId);

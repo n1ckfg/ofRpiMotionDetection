@@ -222,6 +222,10 @@ void ofApp::update(){
             else if(rm.getAddress() == "/maxContours" + RPiId){
                 maxContours = rm.getArgAsInt32(0);
             }
+			else if(rm.getAddress() == "/resetBG" + RPiId){
+				background.reset();
+			}
+
 	}
 }
 

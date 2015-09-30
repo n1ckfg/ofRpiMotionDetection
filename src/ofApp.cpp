@@ -12,6 +12,7 @@ void ofApp::onCharacterReceived(SSHKeyListenerEventData& e)
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+
     ofLog() << "RPid " << RPiId;
     gui.setup("panel");
     gui.setPosition(650,10);
@@ -81,7 +82,7 @@ void ofApp::update(){
     ofImage image;
 
     stringstream filename;
-    filename << "file" << framenr << ".png";
+    filename << "images/"<< "file" << framenr << ".png";
     image.loadImage(filename.str());
     image.rotate90(2);
     frame = toCv(image);
@@ -144,12 +145,16 @@ void ofApp::update(){
             width*=2;
             height*=2;
 
-            message.addFloatArg(x);
-            message.addFloatArg(y);
-            message.addFloatArg(width);
-            message.addFloatArg(height);
+            if ( y - height/2 < 0 ) {
+                message.addFloatArg(x);
+                message.addFloatArg(y);
+                message.addFloatArg(width);
+                message.addFloatArg(height);
 
-            sender.sendMessage(message);
+                sender.sendMessage(message);
+            }
+
+
             //ofLog() << x << " and " << y;
         }
     }

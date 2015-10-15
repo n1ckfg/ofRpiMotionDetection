@@ -232,11 +232,11 @@ void ofApp::update(){
 	    }
 	    else if(rm.getAddress() == "/loadFromFile" + RPiId){
 		if(ofFile::doesFileExist(filename_save)){
-		    ofLog(OF_LOG_NOTICE) << "loading from file" + filename_save << endl;
+		    ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
 		    gui.loadFromFile(filename_save);
 		}
 		else{
-		    ofLog(OF_LOG_NOTICE) << "save file doesn't exist" << endl;
+		    ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
 		}
 	    }
 

@@ -227,9 +227,18 @@ void ofApp::update(){
             else if(rm.getAddress() == "/maxContours" + RPiId){
                 maxContours = rm.getArgAsInt32(0);
             }
-			else if(rm.getAddress() == "/resetBG" + RPiId){
-				background.reset();
-			}
+	    else if(rm.getAddress() == "/resetBG" + RPiId){
+		background.reset();
+	    }
+	    else if(rm.getAddress() == "/loadFromFile" + RPiId){
+		if(ofFile::doesFileExist(filename_save)){
+		    ofLog(OF_LOG_NOTICE) << "loading from file" + filename_save << endl;
+		    gui.loadFromFile(filename_save);
+		}
+		else{
+		    ofLog(OF_LOG_NOTICE) << "save file doesn't exist" << endl;
+		}
+	    }
 
 	}
 }

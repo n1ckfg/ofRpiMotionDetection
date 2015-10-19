@@ -29,3 +29,6 @@
 
 /obj
 /bin
+
+.project
+.cproject

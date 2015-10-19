@@ -68,7 +68,8 @@ static int framenr = 1;
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    framenr++;
+    sent_blobs = 0;
+	framenr++;
 #ifdef __arm__
     frame = Mat(cam.grab());
     stringstream ss;
@@ -117,8 +118,8 @@ void ofApp::update(){
         stringstream addr;
         addr << "/RPi_" << RPiId << "/total_contours/";
         numContours.setAddress(addr.str());
-        numContours.addIntArg(contourFinder.nBlobs);
-        sender.sendMessage(numContours);
+        //numContours.addIntArg(contourFinder.nBlobs);
+        //sender.sendMessage(numContours);
 
         for (int i = 0; i < contourFinder.nBlobs; i++){
 
@@ -152,11 +153,15 @@ void ofApp::update(){
                 message.addFloatArg(height);
 
                 sender.sendMessage(message);
+                sent_blobs++;
             }
-
 
             //ofLog() << x << " and " << y;
         }
+
+        numContours.addIntArg(sent_blobs);
+		sender.sendMessage(numContours);
+
     }
 	// hide old messages
 	for(int i = 0; i < NUM_MSG_STRINGS; i++){

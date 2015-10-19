@@ -51,6 +51,8 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 
 		string filename_save;
 
+		int sent_blobs;
+
         int current_msg_string;
 		string msg_strings[NUM_MSG_STRINGS];
 		float timers[NUM_MSG_STRINGS];

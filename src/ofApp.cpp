@@ -125,8 +125,6 @@ void ofApp::update(){
 
             ofxOscMessage message;
             stringstream messageAddress;
-            messageAddress << "/RPi_" << RPiId << "/contour_" << (i + 1) << "/";
-            message.setAddress(messageAddress.str());
             float x = contourFinder.blobs[i].boundingRect.x;
             float y = contourFinder.blobs[i].boundingRect.y;
             float width = contourFinder.blobs[i].boundingRect.width;
@@ -147,11 +145,13 @@ void ofApp::update(){
             height*=2;
 
             if ( y - height/2 < 0 ) {
-                message.addFloatArg(x);
+		message.addFloatArg(x);
                 message.addFloatArg(y);
                 message.addFloatArg(width);
                 message.addFloatArg(height);
 
+		messageAddress << "/RPi_" << RPiId << "/contour_" << (i + 1) << "/";
+		message.setAddress(messageAddress.str());
                 sender.sendMessage(message);
                 sent_blobs++;
             }

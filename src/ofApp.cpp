@@ -58,8 +58,8 @@ void ofApp::setup(){
 #endif
 
 
-    sender.setup("192.168.255.255", 8000);
-    //sender.setup("127.0.0.1", 8000);
+    //sender.setup("192.168.255.255", 8000);
+    sender.setup("192.168.1.3", 8000);
  	receiver.setup(OSC_PORT);
 }
 
@@ -82,10 +82,11 @@ void ofApp::update(){
 #else
     ofImage image;
 
-    stringstream filename;
-    filename << "images/"<< "file" << framenr << ".png";
-    image.loadImage(filename.str());
+    string filename;
+    filename = "images/file" + ofToString(framenr) + ".png";
+    image.loadImage(filename);
     image.rotate90(2);
+	image.setImageType(OF_IMAGE_COLOR);
     frame = toCv(image);
 
 #endif

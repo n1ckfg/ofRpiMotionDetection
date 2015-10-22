@@ -17,18 +17,18 @@ void ofApp::setup(){
     gui.setup("panel");
     gui.setPosition(650,10);
     gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
-    gui.add(fps.set("fps", 16, 1, 30));
+    gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
-    gui.add(backgroundThreshold.set("backgroundThreshold",15,1,300));
+    gui.add(backgroundThreshold.set("backgroundThreshold",20,1,300));
     gui.add(erodeFactor.set("erodeFactor",0,0,3));
-    gui.add(dilateFactor.set("dilateFactor",0,0,3));
-    gui.add(medianBlurFactor.set("medianBlur",1,0,5));
+    gui.add(dilateFactor.set("dilateFactor",2,0,3));
+    gui.add(medianBlurFactor.set("medianBlur",3,0,5));
     gui.add(minContourArea.set("minContourArea",20, 5, 40));
-    gui.add(maxContourArea.set("maxContourArea",(160*120)/3,40, 160*120)); // one third of the screen.
+    gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
 
-    filename_save = "RPi_" + RPiId + "_params.json";
+    filename_save = "RPi_" + RPiId + "_settings.xml";
 
     if(ofFile::doesFileExist(filename_save)){
         ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
@@ -40,7 +40,7 @@ void ofApp::setup(){
 
     background.setLearningTime(learningTime);
     background.setThresholdValue(backgroundThreshold);
-
+	background.setIgnoreForeground(true);
 
     fps.addListener(this, &ofApp::fpsChanged);
     learningTime.addListener(this, &ofApp::learningTimeChanged);
@@ -70,6 +70,9 @@ static int framenr = 1;
 void ofApp::update(){
     sent_blobs = 0;
 	framenr++;
+	
+	
+	// IF running from RPi
 #ifdef __arm__
     frame = Mat(cam.grab());
     stringstream ss;
@@ -79,26 +82,26 @@ void ofApp::update(){
 
       ofSaveImage(tosave, ss.str());
     }
-#else
-    ofImage image;
 
+	// IF running from Computer
+#else
     string filename;
     filename = "images/file" + ofToString(framenr) + ".png";
     image.loadImage(filename);
     image.rotate90(2);
 	image.setImageType(OF_IMAGE_COLOR);
     frame = toCv(image);
-
 #endif
 
+	
     if (framenr == 130) {
         background.reset();
     }
 
     if (!frame.empty()) {
 
-        //threshold( frame, frame, cutDown, 255,2 );
-
+        threshold( frame, frame, cutDown, 255, 2 );
+		
         background.update(frame, thresholded);
         thresholded.update();
 
@@ -107,8 +110,6 @@ void ofApp::update(){
         erode( frameProcessed, frameProcessed, erodeFactor );
         dilate( frameProcessed, frameProcessed, dilateFactor );
 
-        ofPixels pix;
-        ofImage img;
         toOf(frameProcessed, pix);
         grayImage.setFromPixels(pix);
 
@@ -164,12 +165,6 @@ void ofApp::update(){
 		sender.sendMessage(numContours);
 
     }
-	// hide old messages
-	for(int i = 0; i < NUM_MSG_STRINGS; i++){
-		if(timers[i] < ofGetElapsedTimef()){
-			msg_strings[i] = "";
-		}
-	}
 
 	// check for waiting messages
 	while(receiver.hasWaitingMessages()){
@@ -179,7 +174,6 @@ void ofApp::update(){
 		receiver.getNextMessage(&rm);
                 //probably we need to move it out of the update
             if(rm.getAddress() == "/save"){
-
                 gui.saveToFile(filename_save);
             }
             if(rm.getAddress() == "/getParams"){
@@ -288,6 +282,14 @@ void ofApp::keyPressed  (int key){
         framenr = 1;
         ofLog()<< "restarting video";
     }
+	if(key == 's') {
+		gui.saveToFile(filename_save);
+		ofLog()<< "saved "+filename_save;
+	}
+	if(key == 'l') {
+		gui.loadFromFile(filename_save);
+		ofLog()<< "loaded "+filename_save;
+	}
 }
 
 //--------------------------------------------------------------

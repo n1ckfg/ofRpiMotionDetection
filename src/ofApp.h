@@ -37,36 +37,37 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void fpsChanged(int & fps);
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
+
+		// program ID
 		string RPiId;
-
-        int thresh;
+	
     private:
+	
 #ifdef __arm__
-        ofxCvPiCam cam;
+		ofxCvPiCam cam;
 #else
-        ofVideoGrabber cam;
+		ofVideoGrabber cam;
 #endif
-        ofxOscSender sender;
-        ofxOscReceiver receiver;
-
-		string filename_save;
-
+	
+		// OSC
+		ofxOscSender sender;
+		ofxOscReceiver receiver;
+	
+		// Cv
+		ofPixels pix;
 		int sent_blobs;
-
-        int current_msg_string;
-		string msg_strings[NUM_MSG_STRINGS];
-		float timers[NUM_MSG_STRINGS];
-
-        ofImage thresholded;
-        Mat frame,frameProcessed;
-        ofxCv::RunningBackground background;
-        ConsoleListener consoleListener;
-        void onCharacterReceived(SSHKeyListenerEventData& e);
-        ofxCvContourFinder 	contourFinder;
-        ofxCvGrayscaleImage    grayImage;
-
-        //parameters
-        ofParameter<int> cutDown;
+		ofImage thresholded;
+		Mat frame,frameProcessed;
+		ofxCv::RunningBackground background;
+		void onCharacterReceived(SSHKeyListenerEventData& e);
+		ofxCvContourFinder 	contourFinder;
+		ofxCvGrayscaleImage    grayImage;
+	    ofImage image;
+		ofPixels tosave;
+	
+		// Settings
+		ofxPanel gui;
+		ofParameter<int> cutDown;
 		ofParameter<int> fps;
 		ofParameter<int> learningTime;
 		ofParameter<int> backgroundThreshold;
@@ -76,9 +77,8 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> minContourArea;
 		ofParameter<int> maxContourArea;
 		ofParameter<int> maxContours;
-
-		ofxPanel gui;
-
-		ofPixels tosave;
+		string filename_save;
+	
+		ConsoleListener consoleListener;
 };
 

@@ -50,7 +50,7 @@ void ofApp::setup(){
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
     cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
-    cam.setExposureCompensation(0);
+//    cam.setExposureCompensation(0);
     cam.setAWBMode(MMAL_PARAM_AWBMODE_OFF);
 
 #else

@@ -40,7 +40,10 @@ void ofApp::setup(){
 
     background.setLearningTime(learningTime);
     background.setThresholdValue(backgroundThreshold);
-	background.setIgnoreForeground(true);
+
+	// if we set setIgnoreForeground to true
+	// we will have problems in case of rain.
+//	background.setIgnoreForeground(true);
 
     fps.addListener(this, &ofApp::fpsChanged);
     learningTime.addListener(this, &ofApp::learningTimeChanged);
@@ -50,6 +53,8 @@ void ofApp::setup(){
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
     cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
+
+	// one of these two gives black during night time
 //    cam.setExposureCompensation(0);
 //    cam.setAWBMode(MMAL_PARAM_AWBMODE_OFF);
 

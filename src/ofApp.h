@@ -36,17 +36,6 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
 
-		//experimenting
-
-		void roiXChanged(float &roiX);
-		void roiYChanged(float &roiY);
-		void roiWChanged(float &roiW);
-		void roiHChanged(float &roiH);
-		void exposureCompensationChanged(int &exposureCompensation);
-		void exposureMeteringModeChanged(int &exposureMeteringModeValue);
-		void exposureModeChanged(int &exposureModeValue);
-		void awbModeChanged(int &value);
-		void shutterSpeedChanged(int &value);
 		// program ID
 		string RPiId;
 	

@@ -77,7 +77,6 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> maxContours;
 		string filename_save;
 	
-		//experimenting
 		ofRectangle ROI;
 		string exposureModes[14];
 		string exposureMeteringModes[5];
@@ -91,7 +90,10 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         ofParameter<int> exposureMode;
         ofParameter<int> awbMode;
         ofParameter<int> shutterSpeed;
-		//experimenting end
+        int awbModeInt;
+        int exposureModeInt;
+        int exposureMeteringModeInt;
+
 		ConsoleListener consoleListener;
 };
 

@@ -290,16 +290,16 @@ void ofApp::update(){
 			cam.setExposureCompensation(exposureCompensation);
 		}
 		else if(rm.getAddress() == "/exposureMeteringMode" + RPiId){
-			exposureMeteringMode = rm.getArgAsInt32(0);
-			cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringMode);
+			exposureMeteringModeInt = rm.getArgAsInt32(0);
+			cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringModeInt);
 		}
 		else if(rm.getAddress() == "/exposureMode" + RPiId){
-			exposureMode = rm.getArgAsInt32(0);
-			cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureMode);
+			exposureModeInt = rm.getArgAsInt32(0);
+			cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureModeInt);
 		}
 		else if(rm.getAddress() == "/awbMode" + RPiId){
-			awbMode = rm.getArgAsInt32(0);
-			cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbMode);
+			awbModeInt = rm.getArgAsInt32(0);
+			cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbModeInt);
 		}
 		else if(rm.getAddress() == "/shutterSpeed" + RPiId){
 			shutterSpeed = rm.getArgAsInt32(0);

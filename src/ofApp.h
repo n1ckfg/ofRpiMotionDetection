@@ -38,13 +38,13 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 
 		//experimenting
 
-		void roiXChanged(float &value);
-		void roiYChanged(float &value);
-		void roiWChanged(float &value);
-		void roiHChanged(float &value);
-		void exposureCompensationChanged(int &value);
-		void exposureMeteringModeChanged(int &value);
-		void exposureModeChanged(int &value);
+		void roiXChanged(float &roiX);
+		void roiYChanged(float &roiY);
+		void roiWChanged(float &roiW);
+		void roiHChanged(float &roiH);
+		void exposureCompensationChanged(int &exposureCompensation);
+		void exposureMeteringModeChanged(int &exposureMeteringModeValue);
+		void exposureModeChanged(int &exposureModeValue);
 		void awbModeChanged(int &value);
 		void shutterSpeedChanged(int &value);
 		// program ID
@@ -75,7 +75,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofPixels tosave;
 	
 		// Settings
-		ofxPanel gui, guiXtra;
+		ofxPanel gui;
 		ofParameter<int> cutDown;
 		ofParameter<int> fps;
 		ofParameter<int> learningTime;

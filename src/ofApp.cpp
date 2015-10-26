@@ -33,12 +33,10 @@ void ofApp::setup(){
     gui.add(exposureMode.set("exposure mode",0,0,13));
     gui.add(shutterSpeed.set("shutter speed",0,0,330000));//(in micro seconds)
     gui.add(awbMode.set("AutoWhiteBalance mode",0,0,10));
-
-    guiXtra.setup("PiCam extra settings");
-    guiXtra.add(roiX.set("ROI x",0,0,1));
-    guiXtra.add(roiY.set("ROI y",0,0,1));
-    guiXtra.add(roiW.set("ROI w",1,0,1));
-    guiXtra.add(roiH.set("ROI h",1,0,1));
+    gui.add(roiX.set("ROI x",0,0,1));
+    gui.add(roiY.set("ROI y",0,0,1));
+    gui.add(roiW.set("ROI w",1,0,1));
+    gui.add(roiH.set("ROI h",1,0,1));
     //experimenting off
     filename_save = "RPi_" + RPiId + "_settings.xml";
 
@@ -189,72 +187,102 @@ void ofApp::update(){
 		ofxOscMessage sm;//sentMessage
 		receiver.getNextMessage(&rm);
                 //probably we need to move it out of the update
-            if(rm.getAddress() == "/save"){
-                gui.saveToFile(filename_save);
-            }
-            if(rm.getAddress() == "/getParams"){
-                sm.setAddress("/allParams");
-                sm.addStringArg(RPiId);
-                sm.addIntArg(cutDown);
-                sm.addIntArg(fps);
-                sm.addIntArg(learningTime);
-                sm.addIntArg(backgroundThreshold);
-                sm.addIntArg(erodeFactor);
-                sm.addIntArg(dilateFactor);
-                sm.addIntArg(medianBlurFactor);
-                sm.addIntArg(minContourArea);
-                sm.addIntArg(maxContourArea);
-                sm.addIntArg(maxContours);
+		if(rm.getAddress() == "/save"){
+			gui.saveToFile(filename_save);
+		}
+		if(rm.getAddress() == "/getParams"){
+			sm.setAddress("/allParams");
+			sm.addStringArg(RPiId);
+			sm.addIntArg(cutDown);
+			sm.addIntArg(fps);
+			sm.addIntArg(learningTime);
+			sm.addIntArg(backgroundThreshold);
+			sm.addIntArg(erodeFactor);
+			sm.addIntArg(dilateFactor);
+			sm.addIntArg(medianBlurFactor);
+			sm.addIntArg(minContourArea);
+			sm.addIntArg(maxContourArea);
+			sm.addIntArg(maxContours);
 
-                sender.sendMessage(sm);
-            }
-            else if(rm.getAddress() == "/whoIsThere"){
-                sm.setAddress("/RPiId");
-                sm.addStringArg(RPiId);
-                sender.sendMessage(sm);
-            }
-            else if(rm.getAddress() == "/cutDown" + RPiId){
-                cutDown = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/fps" + RPiId){
-                fps = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/learningTime" + RPiId){
-                learningTime = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/backgroundThreshold" + RPiId){
-                backgroundThreshold = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/erodeFactor" + RPiId){
-                erodeFactor = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/dilateFactor" + RPiId){
-                dilateFactor = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/medianBlurFactor" + RPiId){
-                medianBlurFactor = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/minContourArea" + RPiId){
-                minContourArea = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/maxContourArea" + RPiId){
-                maxContourArea = rm.getArgAsInt32(0);
-            }
-            else if(rm.getAddress() == "/maxContours" + RPiId){
-                maxContours = rm.getArgAsInt32(0);
-            }
-	    else if(rm.getAddress() == "/resetBG" + RPiId){
-		background.reset();
-	    }
-	    else if(rm.getAddress() == "/loadFromFile" + RPiId){
-		if(ofFile::doesFileExist(filename_save)){
-		    ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
-		    gui.loadFromFile(filename_save);
+			sender.sendMessage(sm);
 		}
-		else{
-		    ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
+		else if(rm.getAddress() == "/whoIsThere"){
+			sm.setAddress("/RPiId");
+			sm.addStringArg(RPiId);
+			sender.sendMessage(sm);
 		}
-	    }
+		else if(rm.getAddress() == "/cutDown" + RPiId){
+			cutDown = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/fps" + RPiId){
+			fps = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/learningTime" + RPiId){
+			learningTime = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/backgroundThreshold" + RPiId){
+			backgroundThreshold = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/erodeFactor" + RPiId){
+			erodeFactor = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/dilateFactor" + RPiId){
+			dilateFactor = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/medianBlurFactor" + RPiId){
+			medianBlurFactor = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/minContourArea" + RPiId){
+			minContourArea = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/maxContourArea" + RPiId){
+			maxContourArea = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/maxContours" + RPiId){
+			maxContours = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/maxContours" + RPiId){
+			maxContours = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/roiX" + RPiId){
+			roiX = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/roiY" + RPiId){
+			roiY = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/roiW" + RPiId){
+			roiW = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/roiH" + RPiId){
+			roiH = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/exposureCompensation" + RPiId){
+			exposureCompensation = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/exposureMeteringMode" + RPiId){
+			exposureMeteringMode = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/exposureMode" + RPiId){
+			exposureMode = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/awbMode" + RPiId){
+			awbMode = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/shutterSpeed" + RPiId){
+			shutterSpeed = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/resetBG" + RPiId){
+			background.reset();
+		}
+		else if(rm.getAddress() == "/loadFromFile" + RPiId){
+			if(ofFile::doesFileExist(filename_save)){
+				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
+				gui.loadFromFile(filename_save);
+			}
+			else{
+				ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
+			}
+		}
 
 	}
 }
@@ -283,7 +311,6 @@ void ofApp::draw(){
     contourFinder.draw(320,240,320,240);
 
     gui.draw();
-    guiXtra.draw();
 //#endif
 }
 
@@ -339,40 +366,42 @@ void ofApp::windowResized(int w, int h){
 
 }
 
-void ofApp::roiXChanged(float &value){
-    ROI.x = value;
+#ifdef __arm__
+void ofApp::roiXChanged(float &roiX){
+    ROI.x = roiX;
     cam.setROI(ROI);
 }
-void ofApp::roiYChanged(float &value){
-    ROI.y = value;
+void ofApp::roiYChanged(float &roiY){
+    ROI.y = roiY;
     cam.setROI(ROI);
 }
-void ofApp::roiWChanged(float &value){
-    ROI.width = value;
+void ofApp::roiWChanged(float &roiW){
+    ROI.width = roiW;
     cam.setROI(ROI);
 }
-void ofApp::roiHChanged(float &value){
-    ROI.height = value;
+void ofApp::roiHChanged(float &roiH){
+    ROI.height = roiH;
     cam.setROI(ROI);
 }
-void ofApp::exposureCompensationChanged(int &value){
-    cam.setExposureCompensation(value);
+void ofApp::exposureCompensationChanged(int &exposureCompensation){
+    cam.setExposureCompensation(exposureCompensation);
 }
-/*void ofApp::exposureMeteringModeChanged(int &value){
-    exposureMeteringMode.setName(exposureMeteringModes[value]);                            //display the preset name in the UI
-    if(value == exposureMeteringMode.getMax()) value = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
-    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)value);
+void ofApp::exposureMeteringModeChanged(int &exposureMeteringMode){
+    //exposureMeteringMode.setName(exposureMeteringModes[exposureMeteringModeValue]);                            //display the preset name in the UI
+    if(exposureMeteringModeValue == exposureMeteringMode.getMax()) exposureMeteringModeValue = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
+    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringModeValue);
 }
-void ofApp::exposureModeChanged(int &value){
-    exposureMode.setName(exposureModes[value]);//display the preset name in the UI
-    if(value == exposureMode.getMax()) value = MMAL_PARAM_EXPOSUREMODE_MAX;//the preset max value is different from the UI
-    cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)value);
+void ofApp::exposureModeChanged(int &exposureMode){
+    //exposureMode.setName(exposureModes[exposureMode]);//display the preset name in the UI
+    if(exposureMode == exposureMode.getMax()) exposureMode = MMAL_PARAM_EXPOSUREMODE_MAX;//the preset max value is different from the UI
+    cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureMode);
 }
-void ofApp::awbModeChanged(int &value){
-    awbMode.setName(awbModes[value]);//display the preset name in the UI
-    if(value == awbMode.getMax()) value = MMAL_PARAM_AWBMODE_MAX;//the preset max value is different from the UI
-    cam.setAWBMode((MMAL_PARAM_AWBMODE_T)value);
-}*/
-void ofApp::shutterSpeedChanged(int &value){
-    cam.setShutterSpeed(value);
+void ofApp::awbModeChanged(int &awbMode){
+    //awbMode.setName(awbModes[awbModeValue]);//display the preset name in the UI
+    if(awbMode == awbMode.getMax()) awbMode = MMAL_PARAM_AWBMODE_MAX;//the preset max value is different from the UI
+    cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbMode);
 }
+void ofApp::shutterSpeedChanged(int &shutterSpeed){
+    cam.setShutterSpeed(shutterSpeed);
+}
+#endif

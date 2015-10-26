@@ -264,33 +264,48 @@ void ofApp::update(){
 		else if(rm.getAddress() == "/maxContours" + RPiId){
 			maxContours = rm.getArgAsInt32(0);
 		}
+#ifdef __arm__
 		else if(rm.getAddress() == "/roiX" + RPiId){
 			roiX = rm.getArgAsFloat(0);
+			ROI.y = roiX;
+			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/roiY" + RPiId){
 			roiY = rm.getArgAsFloat(0);
+			ROI.y = roiY;
+			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/roiW" + RPiId){
 			roiW = rm.getArgAsFloat(0);
+			ROI.y = roiW;
+			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/roiH" + RPiId){
 			roiH = rm.getArgAsFloat(0);
+			ROI.y = roiH;
+			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/exposureCompensation" + RPiId){
 			exposureCompensation = rm.getArgAsInt32(0);
+			cam.setExposureCompensation(exposureCompensation);
 		}
 		else if(rm.getAddress() == "/exposureMeteringMode" + RPiId){
 			exposureMeteringMode = rm.getArgAsInt32(0);
+			cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringMode);
 		}
 		else if(rm.getAddress() == "/exposureMode" + RPiId){
 			exposureMode = rm.getArgAsInt32(0);
+			cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureMode);
 		}
 		else if(rm.getAddress() == "/awbMode" + RPiId){
 			awbMode = rm.getArgAsInt32(0);
+			cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbMode);
 		}
 		else if(rm.getAddress() == "/shutterSpeed" + RPiId){
 			shutterSpeed = rm.getArgAsInt32(0);
+			cam.setShutterSpeed(shutterSpeed);
 		}
+#endif
 		else if(rm.getAddress() == "/resetBG" + RPiId){
 			background.reset();
 		}
@@ -386,42 +401,3 @@ void ofApp::windowResized(int w, int h){
 
 }
 
-#ifdef __arm__
-void ofApp::roiXChanged(float &roiX){
-    ROI.x = roiX;
-    cam.setROI(ROI);
-}
-void ofApp::roiYChanged(float &roiY){
-    ROI.y = roiY;
-    cam.setROI(ROI);
-}
-void ofApp::roiWChanged(float &roiW){
-    ROI.width = roiW;
-    cam.setROI(ROI);
-}
-void ofApp::roiHChanged(float &roiH){
-    ROI.height = roiH;
-    cam.setROI(ROI);
-}
-void ofApp::exposureCompensationChanged(int &exposureCompensation){
-    cam.setExposureCompensation(exposureCompensation);
-}
-void ofApp::exposureMeteringModeChanged(int &exposureMeteringMode){
-    //exposureMeteringMode.setName(exposureMeteringModes[exposureMeteringModeValue]);                            //display the preset name in the UI
-    if(exposureMeteringMode == exposureMeteringMode.getMax()) exposureMeteringMode = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
-    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringMode);
-}
-void ofApp::exposureModeChanged(int &exposureMode){
-    //exposureMode.setName(exposureModes[exposureMode]);//display the preset name in the UI
-    if(exposureMode == exposureMode.getMax()) exposureMode = MMAL_PARAM_EXPOSUREMODE_MAX;//the preset max value is different from the UI
-    cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureMode);
-}
-void ofApp::awbModeChanged(int &awbMode){
-    //awbMode.setName(awbModes[awbModeValue]);//display the preset name in the UI
-    if(awbMode == awbMode.getMax()) awbMode = MMAL_PARAM_AWBMODE_MAX;//the preset max value is different from the UI
-    cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbMode);
-}
-void ofApp::shutterSpeedChanged(int &shutterSpeed){
-    cam.setShutterSpeed(shutterSpeed);
-}
-#endif

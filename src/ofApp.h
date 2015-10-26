@@ -38,6 +38,17 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
 
+		//experimenting
+
+		void roiXChanged(float &value);
+		void roiYChanged(float &value);
+		void roiWChanged(float &value);
+		void roiHChanged(float &value);
+		void exposureCompensationChanged(int &value);
+		void exposureMeteringModeChanged(int &value);
+		void exposureModeChanged(int &value);
+		void awbModeChanged(int &value);
+		void shutterSpeedChanged(int &value);
 		// program ID
 		string RPiId;
 	
@@ -66,7 +77,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofPixels tosave;
 	
 		// Settings
-		ofxPanel gui;
+		ofxPanel gui, guiXtra;
 		ofParameter<int> cutDown;
 		ofParameter<int> fps;
 		ofParameter<int> learningTime;
@@ -79,6 +90,21 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> maxContours;
 		string filename_save;
 	
+		//experimenting
+		ofRectangle ROI;
+		string exposureModes[14];
+		string exposureMeteringModes[5];
+		string awbModes[11];
+        ofParameter<float> roiX;
+        ofParameter<float> roiY;
+        ofParameter<float> roiW;
+        ofParameter<float> roiH;
+        ofParameter<int>  exposureCompensation;
+        ofParameter<int> exposureMeteringMode;
+        ofParameter<int> exposureMode;
+        ofParameter<int> awbMode;
+        ofParameter<int> shutterSpeed;
+		//experimenting end
 		ConsoleListener consoleListener;
 };
 

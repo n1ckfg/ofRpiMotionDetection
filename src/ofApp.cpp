@@ -27,7 +27,19 @@ void ofApp::setup(){
     gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     ofSetFrameRate(fps);
+    //experimenting
+    gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
+    gui.add(exposureMeteringMode.set("exposure metering mode",0,0,4));
+    gui.add(exposureMode.set("exposure mode",0,0,13));
+    gui.add(shutterSpeed.set("shutter speed",0,0,330000));//(in micro seconds)
+    gui.add(awbMode.set("AutoWhiteBalance mode",0,0,10));
 
+    guiXtra.setup("PiCam extra settings");
+    guiXtra.add(roiX.set("ROI x",0,0,1));
+    guiXtra.add(roiY.set("ROI y",0,0,1));
+    guiXtra.add(roiW.set("ROI w",1,0,1));
+    guiXtra.add(roiH.set("ROI h",1,0,1));
+    //experimenting off
     filename_save = "RPi_" + RPiId + "_settings.xml";
 
     if(ofFile::doesFileExist(filename_save)){
@@ -163,7 +175,6 @@ void ofApp::update(){
                 sent_blobs++;
             }
 
-            //ofLog() << x << " and " << y;
         }
 
         numContours.addIntArg(sent_blobs);
@@ -272,6 +283,7 @@ void ofApp::draw(){
     contourFinder.draw(320,240,320,240);
 
     gui.draw();
+    guiXtra.draw();
 //#endif
 }
 
@@ -312,27 +324,40 @@ void ofApp::mouseDragged(int x, int y, int button){
     //thresh = ofMap(x,0,ofGetWidth(),0,255);
 }
 
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
+void ofApp::roiXChanged(float &value){
+    ROI.x = value;
+    cam.setROI(ROI);
 }
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
+void ofApp::roiYChanged(float &value){
+    ROI.y = value;
+    cam.setROI(ROI);
 }
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
+void ofApp::roiWChanged(float &value){
+    ROI.width = value;
+    cam.setROI(ROI);
 }
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
+void ofApp::roiHChanged(float &value){
+    ROI.height = value;
+    cam.setROI(ROI);
 }
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
-
+void ofApp::exposureCompensationChanged(int &value){
+    cam.setExposureCompensation(value);
+}
+/*void ofApp::exposureMeteringModeChanged(int &value){
+    exposureMeteringMode.setName(exposureMeteringModes[value]);                            //display the preset name in the UI
+    if(value == exposureMeteringMode.getMax()) value = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
+    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)value);
+}
+void ofApp::exposureModeChanged(int &value){
+    exposureMode.setName(exposureModes[value]);//display the preset name in the UI
+    if(value == exposureMode.getMax()) value = MMAL_PARAM_EXPOSUREMODE_MAX;//the preset max value is different from the UI
+    cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)value);
+}
+void ofApp::awbModeChanged(int &value){
+    awbMode.setName(awbModes[value]);//display the preset name in the UI
+    if(value == awbMode.getMax()) value = MMAL_PARAM_AWBMODE_MAX;//the preset max value is different from the UI
+    cam.setAWBMode((MMAL_PARAM_AWBMODE_T)value);
+}*/
+void ofApp::shutterSpeedChanged(int &value){
+    cam.setShutterSpeed(value);
 }

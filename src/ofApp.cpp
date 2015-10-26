@@ -59,6 +59,26 @@ void ofApp::setup(){
     learningTime.addListener(this, &ofApp::learningTimeChanged);
     backgroundThreshold.addListener(this, &ofApp::backgroundThresholdChanged);
 
+    exposureMeteringModes[0] = "average";
+	exposureMeteringModes[1] = "spot";
+	exposureMeteringModes[2] = "backlit";
+	exposureMeteringModes[3] = "matrix";
+	exposureMeteringModes[4] = "max";
+
+	exposureModes[ 0] = "off";
+	exposureModes[ 1] = "auto";
+	exposureModes[ 2] = "night";
+	exposureModes[ 3] = "night preview";
+	exposureModes[ 4] = "backlight";
+	exposureModes[ 5] = "spotlight";
+	exposureModes[ 6] = "sports";
+	exposureModes[ 7] = "snow";
+	exposureModes[ 8] = "beach";
+	exposureModes[ 9] = "very long";
+	exposureModes[10] = "fixed fps";
+	exposureModes[11] = "antishake";
+	exposureModes[12] = "fireworks";
+	exposureModes[13] = "max";
 
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
@@ -388,8 +408,8 @@ void ofApp::exposureCompensationChanged(int &exposureCompensation){
 }
 void ofApp::exposureMeteringModeChanged(int &exposureMeteringMode){
     //exposureMeteringMode.setName(exposureMeteringModes[exposureMeteringModeValue]);                            //display the preset name in the UI
-    if(exposureMeteringModeValue == exposureMeteringMode.getMax()) exposureMeteringModeValue = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
-    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringModeValue);
+    if(exposureMeteringMode == exposureMeteringMode.getMax()) exposureMeteringMode = MMAL_PARAM_EXPOSUREMETERINGMODE_MAX;//the preset max value is different from the UI
+    cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringMode);
 }
 void ofApp::exposureModeChanged(int &exposureMode){
     //exposureMode.setName(exposureModes[exposureMode]);//display the preset name in the UI

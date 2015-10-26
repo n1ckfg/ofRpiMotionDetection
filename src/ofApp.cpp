@@ -339,16 +339,6 @@ void ofApp::windowResized(int w, int h){
 
 }
 
-//--------------------------------------------------------------
-void dragEvent(ofDragInfo dragInfo){
-
-}
-
-//--------------------------------------------------------------
-void gotMessage(ofMessage msg){
-
-}
-
 void ofApp::roiXChanged(float &value){
     ROI.x = value;
     cam.setROI(ROI);

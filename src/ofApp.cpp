@@ -324,6 +324,31 @@ void ofApp::mouseDragged(int x, int y, int button){
     //thresh = ofMap(x,0,ofGetWidth(),0,255);
 }
 
+//--------------------------------------------------------------
+void ofApp::mousePressed(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseReleased(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::windowResized(int w, int h){
+
+}
+
+//--------------------------------------------------------------
+void dragEvent(ofDragInfo dragInfo){
+
+}
+
+//--------------------------------------------------------------
+void gotMessage(ofMessage msg){
+
+}
+
 void ofApp::roiXChanged(float &value){
     ROI.x = value;
     cam.setROI(ROI);

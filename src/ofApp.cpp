@@ -27,6 +27,7 @@ void ofApp::setup(){
     gui.add(minContourArea.set("minContourArea",20, 5, 40));
     gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
+	gui.add(useAccum.set("useAccum", true));
     ofSetFrameRate(fps);
     //experimenting
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
@@ -137,10 +138,6 @@ void ofApp::update(){
 
 	if(accum.empty()) {
 		frame.convertTo(accum, CV_32F);
-//		frame.copyTo(accum);
-//		accum.convertTo(frame, CV_8U);
-//		accum.create(160, 120, CV_32F);
-//		accum.ones(160, 120, CV_32F);
 		cout << "frameinit" << frame.type() << endl;
 	}
 
@@ -150,17 +147,23 @@ void ofApp::update(){
 		// Low pass filter
         threshold( frame, frame, cutDown, 255, 2 );
 
-		// accumulate few frames in order to wipe out noise
-		accum.convertTo(accum, CV_32F);
-		cv::accumulateWeighted(frame, accum, accumFactor);
-		accum.convertTo(accum, CV_8U);
-		// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
-		//		cout << "framein" << frame.type() << endl;
-		//		cout << "accumin" << accum.type() << endl;
-
-		//BG subtraction
-		background.update(accum, thresholded);
-        thresholded.update();
+		if(useAccum) {
+			// accumulate few frames in order to wipe out noise
+			accum.convertTo(accum, CV_32F);
+			cv::accumulateWeighted(frame, accum, accumFactor);
+			accum.convertTo(accum, CV_8U);
+			// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
+			//		cout << "framein" << frame.type() << endl;
+			//		cout << "accumin" << accum.type() << endl;
+			
+			//BG subtraction
+			background.update(accum, thresholded);
+			thresholded.update();
+		}else{
+			//BG subtraction
+			background.update(frame, thresholded);
+			thresholded.update();
+		}
 		
 		// Filter noise after threshold
         frameProcessed = toCv(thresholded);
@@ -289,6 +292,10 @@ void ofApp::update(){
 		else if(rm.getAddress() == "/maxContours" + RPiId){
 			maxContours = rm.getArgAsInt32(0);
 		}
+		else if(rm.getAddress() == "/useAccum" + RPiId){
+			useAccum = bool(rm.getArgAsInt32(0));
+		}
+
 #ifdef __arm__
 		else if(rm.getAddress() == "/roiX" + RPiId){
 			roiX = rm.getArgAsFloat(0);

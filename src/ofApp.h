@@ -78,7 +78,8 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> minContourArea;
 		ofParameter<int> maxContourArea;
 		ofParameter<int> maxContours;
-		string filename_save;
+		ofParameter<bool> useAccum;
+	string filename_save;
 	
 		ofRectangle ROI;
 		string exposureModes[14];

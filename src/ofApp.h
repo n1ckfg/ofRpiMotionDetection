@@ -41,6 +41,8 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 	
     private:
 	
+		int framenr;
+	
 #ifdef __arm__
 		ofxCvPiCam cam;
 #else
@@ -55,7 +57,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofPixels pix;
 		int sent_blobs;
 		ofImage thresholded;
-		Mat frame,frameProcessed;
+		Mat frame, frameProcessed, accum;
 		ofxCv::RunningBackground background;
 		void onCharacterReceived(SSHKeyListenerEventData& e);
 		ofxCvContourFinder 	contourFinder;
@@ -68,6 +70,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> cutDown;
 		ofParameter<int> fps;
 		ofParameter<int> learningTime;
+		ofParameter<float> accumFactor;
 		ofParameter<int> backgroundThreshold;
 		ofParameter<int> erodeFactor;
 		ofParameter<int> dilateFactor;

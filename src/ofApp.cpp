@@ -19,7 +19,8 @@ void ofApp::setup(){
     gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
-    gui.add(backgroundThreshold.set("backgroundThreshold",20,1,300));
+    gui.add(accumFactor.set("accumFactor",0.001,0.,1.));
+	gui.add(backgroundThreshold.set("backgroundThreshold",20,1,300));
     gui.add(erodeFactor.set("erodeFactor",0,0,3));
     gui.add(dilateFactor.set("dilateFactor",2,0,3));
     gui.add(medianBlurFactor.set("medianBlur",3,0,5));
@@ -79,7 +80,7 @@ void ofApp::setup(){
 	exposureModes[11] = "antishake";
 	exposureModes[12] = "fireworks";
 	exposureModes[13] = "max";
-
+	
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
     cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
@@ -91,14 +92,15 @@ void ofApp::setup(){
 #else
     cam.initGrabber(160,120);
 #endif
-
-
+	
     //sender.setup("192.168.255.255", 8000);
     sender.setup("192.168.1.3", 8000);
  	receiver.setup(OSC_PORT);
+
+	framenr = 1;
 }
 
-static int framenr = 1;
+
 
 
 //--------------------------------------------------------------
@@ -127,19 +129,40 @@ void ofApp::update(){
 	image.setImageType(OF_IMAGE_COLOR);
     frame = toCv(image);
 #endif
-
 	
     if (framenr == 130) {
         background.reset();
     }
 
+
+	if(accum.empty()) {
+		frame.convertTo(accum, CV_32F);
+//		frame.copyTo(accum);
+//		accum.convertTo(frame, CV_8U);
+//		accum.create(160, 120, CV_32F);
+//		accum.ones(160, 120, CV_32F);
+		cout << "frameinit" << frame.type() << endl;
+	}
+
+	
     if (!frame.empty()) {
 
+		// Low pass filter
         threshold( frame, frame, cutDown, 255, 2 );
-		
-        background.update(frame, thresholded);
-        thresholded.update();
 
+		// accumulate few frames in order to wipe out noise
+		accum.convertTo(accum, CV_32F);
+		cv::accumulateWeighted(frame, accum, accumFactor);
+		accum.convertTo(accum, CV_8U);
+		// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
+		//		cout << "framein" << frame.type() << endl;
+		//		cout << "accumin" << accum.type() << endl;
+
+		//BG subtraction
+		background.update(accum, thresholded);
+        thresholded.update();
+		
+		// Filter noise after threshold
         frameProcessed = toCv(thresholded);
         medianBlur ( frameProcessed, frameProcessed, medianBlurFactor );
         erode( frameProcessed, frameProcessed, erodeFactor );
@@ -147,7 +170,6 @@ void ofApp::update(){
 
         toOf(frameProcessed, pix);
         grayImage.setFromPixels(pix);
-
 
         contourFinder.findContours(grayImage, minContourArea, maxContourArea, maxContours, true); // find holes
 
@@ -239,6 +261,9 @@ void ofApp::update(){
 		}
 		else if(rm.getAddress() == "/learningTime" + RPiId){
 			learningTime = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/accumFactor" + RPiId){
+			accumFactor = rm.getArgAsFloat(0);
 		}
 		else if(rm.getAddress() == "/backgroundThreshold" + RPiId){
 			backgroundThreshold = rm.getArgAsInt32(0);
@@ -340,7 +365,8 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
 void ofApp::draw(){
 //#ifdef __arm__
     drawMat(frame,0,0,320,240);
-    drawMat(frameProcessed,0,240,320,240);
+    drawMat(accum,640,0,320,240);
+	drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
 
     contourFinder.draw(320,240,320,240);

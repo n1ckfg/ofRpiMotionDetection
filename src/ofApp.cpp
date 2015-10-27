@@ -322,10 +322,12 @@ void ofApp::update(){
 			cam.setExposureCompensation(exposureCompensation);
 		}
 		else if(rm.getAddress() == "/exposureMeteringMode" + RPiId){
+			exposureMeteringMode = rm.getArgAsInt32(0);
 			exposureMeteringModeInt = rm.getArgAsInt32(0);
 			cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringModeInt);
 		}
 		else if(rm.getAddress() == "/exposureMode" + RPiId){
+			exposureMode = rm.getArgAsInt32(0);
 			exposureModeInt = rm.getArgAsInt32(0);
 			cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureModeInt);
 		}

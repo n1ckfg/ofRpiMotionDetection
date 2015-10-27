@@ -19,9 +19,9 @@ void ofApp::setup(){
     gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
-    gui.add(accumFactor.set("accumFactor",0.001,0.,1.));
-	gui.add(backgroundThreshold.set("backgroundThreshold",20,1,300));
-    gui.add(erodeFactor.set("erodeFactor",0,0,3));
+    gui.add(accumFactor.set("accumFactor",0.3,0.,1.));
+	gui.add(backgroundThreshold.set("backgroundThreshold",10,1,300));
+    gui.add(erodeFactor.set("erodeFactor",1,0,3));
     gui.add(dilateFactor.set("dilateFactor",2,0,3));
     gui.add(medianBlurFactor.set("medianBlur",3,0,5));
     gui.add(minContourArea.set("minContourArea",20, 5, 40));
@@ -31,7 +31,7 @@ void ofApp::setup(){
     //experimenting
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
     gui.add(exposureMeteringMode.set("exposure metering mode",0,0,4));
-    gui.add(exposureMode.set("exposure mode",0,0,13));
+    gui.add(exposureMode.set("exposure mode",1,0,13));
     gui.add(shutterSpeed.set("shutter speed",0,0,330000));//(in micro seconds)
     gui.add(awbMode.set("AutoWhiteBalance mode",0,0,10));
     gui.add(roiX.set("ROI x",0,0,1));

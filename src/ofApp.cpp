@@ -11,11 +11,14 @@ void ofApp::onCharacterReceived(SSHKeyListenerEventData& e)
 }
 //--------------------------------------------------------------
 void ofApp::setup(){
-
-
+	ofSetFrameRate(fps);
     ofLog() << "RPid " << RPiId;
-    gui.setup("panel");
+	framenr = 1;
+	
+	gui.setup("panel");
     gui.setPosition(650,10);
+	
+	// openCV params
     gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
@@ -28,8 +31,8 @@ void ofApp::setup(){
     gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
 	gui.add(useAccum.set("useAccum", true));
-    ofSetFrameRate(fps);
-    //experimenting
+
+	// camera params
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
     gui.add(exposureMeteringMode.set("exposure metering mode",0,0,4));
     gui.add(exposureMode.set("exposure mode",1,0,13));
@@ -40,28 +43,29 @@ void ofApp::setup(){
     gui.add(roiY.set("ROI y",0,0,1));
     gui.add(roiW.set("ROI w",1,0,1));
     gui.add(roiH.set("ROI h",1,0,1));
-    //experimenting off
-    filename_save = "RPi_" + RPiId + "_settings.xml";
 
-    if(ofFile::doesFileExist(filename_save)){
-        ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
-        gui.loadFromFile(filename_save);
-    }
-
+	// event Listeners
+	fps.addListener(this, &ofApp::fpsChanged);
+	learningTime.addListener(this, &ofApp::learningTimeChanged);
+	backgroundThreshold.addListener(this, &ofApp::backgroundThresholdChanged);
+#ifdef __arm__
+	roiX.addListener(this, &ofApp::roiXChanged);
+	roiY.addListener(this, &ofApp::roiYChanged);
+	roiW.addListener(this, &ofApp::roiWChanged);
+	roiH.addListener(this, &ofApp::roiHChanged);
+	exposureCompensation.addListener(this, &ofApp::exposureCompensationChanged);
+	exposureMeteringMode.addListener(this, &ofApp::exposureMeteringModeChanged);
+	exposureMode.addListener(this, &ofApp::exposureModeChanged);
+	awbMode.addListener(this, &ofApp::awbModeChanged);
+	flickerAvoid.addListener(this, &ofApp::flickerAvoidChanged);
+	shutterSpeed.addListener(this, &ofApp::shutterSpeedChanged);
+#endif
+	
+	// console
     consoleListener.setup(this);
-    consoleListener.startThread(false, false);
-
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(backgroundThreshold);
-
-	// if we set setIgnoreForeground to true
-	// we will have problems in case of rain.
-//	background.setIgnoreForeground(true);
-
-    fps.addListener(this, &ofApp::fpsChanged);
-    learningTime.addListener(this, &ofApp::learningTimeChanged);
-    backgroundThreshold.addListener(this, &ofApp::backgroundThresholdChanged);
-
+    consoleListener.startThread(false);
+	
+/*
     exposureMeteringModes[0] = "average";
 	exposureMeteringModes[1] = "spot";
 	exposureMeteringModes[2] = "backlit";
@@ -88,24 +92,36 @@ void ofApp::setup(){
 	flickerAvoids[2]	= "50Hz";
 	flickerAvoids[3]	= "60Hz";
 	flickerAvoids[4]	= "Max";
+*/
 	
+	// camera Grabber
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
     cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
-
 	// one of these two gives black during night time
 //    cam.setExposureCompensation(0);
 //    cam.setAWBMode(MMAL_PARAM_AWBMODE_OFF);
-
 #else
     cam.initGrabber(160,120);
 #endif
-	
+
+	// OSC
     //sender.setup("192.168.255.255", 8000);
     sender.setup("192.168.1.3", 8000);
  	receiver.setup(OSC_PORT);
+	
+	//load params
+	filename_save = "RPi_" + RPiId + "_settings.xml";
+	if(ofFile::doesFileExist(filename_save)){
+		ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
+		gui.loadFromFile(filename_save);
+	}
 
-	framenr = 1;
+	// load openCV params
+	background.setLearningTime(learningTime);
+	background.setThresholdValue(backgroundThreshold);
+	//	background.setIgnoreForeground(true);	// if we set setIgnoreForeground to true
+	// we will have problems in case of rain.
 }
 
 
@@ -214,13 +230,13 @@ void ofApp::update(){
             height*=2;
 
             if ( y - height/2 < 0 ) {
-		message.addFloatArg(x);
+				message.addFloatArg(x);
                 message.addFloatArg(y);
                 message.addFloatArg(width);
                 message.addFloatArg(height);
 
-		messageAddress << "/RPi_" << RPiId << "/contour_" << (i + 1) << "/";
-		message.setAddress(messageAddress.str());
+				messageAddress << "/RPi_" << RPiId << "/contour_" << (i + 1) << "/";
+				message.setAddress(messageAddress.str());
                 sender.sendMessage(message);
                 sent_blobs++;
             }
@@ -238,10 +254,7 @@ void ofApp::update(){
 		ofxOscMessage rm;//receivedMessage
 		ofxOscMessage sm;//sentMessage
 		receiver.getNextMessage(&rm);
-                //probably we need to move it out of the update
-		if(rm.getAddress() == "/save"){
-			gui.saveToFile(filename_save);
-		}
+
 		if(rm.getAddress() == "/getParams"){
 			sm.setAddress("/allParams");
 			sm.addStringArg(RPiId);
@@ -258,11 +271,29 @@ void ofApp::update(){
 
 			sender.sendMessage(sm);
 		}
+		if(rm.getAddress() == "/save"){
+			gui.saveToFile(filename_save);
+		}
 		else if(rm.getAddress() == "/whoIsThere"){
 			sm.setAddress("/RPiId");
 			sm.addStringArg(RPiId);
 			sender.sendMessage(sm);
 		}
+		else if(rm.getAddress() == "/resetBG" + RPiId){
+			frame.convertTo(accum, CV_32F);
+			background.reset();
+		}
+		else if(rm.getAddress() == "/loadFromFile" + RPiId){
+			if(ofFile::doesFileExist(filename_save)){
+				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
+				gui.loadFromFile(filename_save);
+			}
+			else{
+				ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
+			}
+		}
+		
+		// openCv params from OSC
 		else if(rm.getAddress() == "/cutDown" + RPiId){
 			cutDown = rm.getArgAsInt32(0);
 		}
@@ -303,6 +334,7 @@ void ofApp::update(){
 			useAccum = bool(rm.getArgAsInt32(0));
 		}
 
+		// camera params from OSC
 #ifdef __arm__
 		else if(rm.getAddress() == "/roiX" + RPiId){
 			roiX = rm.getArgAsFloat(0);
@@ -339,10 +371,12 @@ void ofApp::update(){
 			cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureModeInt);
 		}
 		else if(rm.getAddress() == "/awbMode" + RPiId){
+			awbMode = rm.getArgAsInt32(0);
 			awbModeInt = rm.getArgAsInt32(0);
 			cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbModeInt);
 		}
 		else if(rm.getAddress() == "/flickerAvoid" + RPiId){
+			flickerAvoid = rm.getArgAsInt32(0);
 			flickerAvoidInt = rm.getArgAsInt32(0);
 			cam.setFlickerAvoid((MMAL_PARAM_FLICKERAVOID_T)flickerAvoidInt);
 		}
@@ -351,19 +385,6 @@ void ofApp::update(){
 			cam.setShutterSpeed(shutterSpeed);
 		}
 #endif
-		else if(rm.getAddress() == "/resetBG" + RPiId){
-			frame.convertTo(accum, CV_32F);
-			background.reset();
-		}
-		else if(rm.getAddress() == "/loadFromFile" + RPiId){
-			if(ofFile::doesFileExist(filename_save)){
-				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
-				gui.loadFromFile(filename_save);
-			}
-			else{
-				ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
-			}
-		}
 
 	}
 }
@@ -373,14 +394,53 @@ void ofApp::update(){
 void ofApp::fpsChanged(int &fps) {
     ofSetFrameRate(fps);
 }
-
 void ofApp::learningTimeChanged(int &learningTime) {
     background.setLearningTime(learningTime);
 }
-
 void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
     background.setThresholdValue(backgroundThreshold);
 }
+#ifdef __arm__
+void ofApp::roiXChanged(int &roiX) {
+	ROI.x = roiX;
+	cam.setROI(ROI);
+}
+void ofApp::roiYChanged(int &roiY) {
+	ROI.y = roiY;
+	cam.setROI(ROI);
+}
+void ofApp::roiWChanged(int &roiW) {
+	ROI.w = roiW;
+	cam.setROI(ROI);
+}
+void ofApp::roiHChanged(int &roiH) {
+	ROI.h = roiH;
+	cam.setROI(ROI);
+}
+void ofApp::exposureCompensationChanged(int &exposureCompensation) {
+	cam.setExposureCompensation(exposureCompensation);
+}
+void ofApp::exposureMeteringModeChanged(int &exposureMeteringMode) {
+	exposureMeteringModeInt = exposureMeteringMode;
+	cam.setExposureMeteringMode((MMAL_PARAM_EXPOSUREMETERINGMODE_T)exposureMeteringModeInt);
+}
+void ofApp::exposureModeChanged(int &exposureMode) {
+	exposureModeInt = exposureMode;
+	cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T)exposureModeInt);
+}
+void ofApp::awbModeChanged(int &awbMode) {
+	awbModeInt = awbMode;
+	cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbModeInt);
+}
+void ofApp::flickerAvoidChanged(int &flickerAvoid) {
+	flickerAvoidInt = flickerAvoid;
+	cam.setFlickerAvoid((MMAL_PARAM_FLICKERAVOID_T)flickerAvoidInt);
+}
+void ofApp::shutterSpeedChanged(int &shutterSpeed) {
+	shutterSpeedInt = shutterSpeed;
+	cam.setShutterSpeed(shutterSpeed);
+}
+#endif
 
 //--------------------------------------------------------------
 void ofApp::draw(){

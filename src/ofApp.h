@@ -32,10 +32,22 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void mousePressed(int x, int y, int button);
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
-		void fpsChanged(int & fps);
+	
+		// listeners
+		void fpsChanged(int &fps);
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
-
+		void roiXChanged(int &roiX);
+		void roiYChanged(int &roiY);
+		void roiWChanged(int &roiW);
+		void roiHChanged(int &roiH);
+		void exposureCompensationChanged(int &exposureCompensation);
+		void exposureMeteringModeChanged(int &exposureMeteringMode);
+		void exposureModeChanged(int &exposureMode);
+		void awbModeChanged(int &awbMode);
+		void flickerAvoidChanged(int &flickerAvoid);
+		void shutterSpeedChanged(int &shutterSpeed);
+	
 		// program ID
 		string RPiId;
 	
@@ -82,10 +94,6 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 	string filename_save;
 	
 		ofRectangle ROI;
-		string exposureModes[14];
-		string exposureMeteringModes[5];
-		string awbModes[11];
-		string flickerAvoids[11];
 		ofParameter<float> roiX;
         ofParameter<float> roiY;
         ofParameter<float> roiW;
@@ -96,11 +104,17 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         ofParameter<int> awbMode;
         ofParameter<int> shutterSpeed;
         ofParameter<int> flickerAvoid;
-		int awbModeInt;
-        int exposureModeInt;
         int exposureMeteringModeInt;
+        int exposureModeInt;
+		int awbModeInt;
 		int flickerAvoidInt;
 	
-		ConsoleListener consoleListener;
+	ConsoleListener consoleListener;
+	
+	//		string exposureModes[14];
+	//		string exposureMeteringModes[5];
+	//		string awbModes[11];
+	//		string flickerAvoids[11];
+
 };
 

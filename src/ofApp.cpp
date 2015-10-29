@@ -35,7 +35,8 @@ void ofApp::setup(){
     gui.add(exposureMode.set("exposure mode",1,0,13));
     gui.add(shutterSpeed.set("shutter speed",0,0,330000));//(in micro seconds)
     gui.add(awbMode.set("AutoWhiteBalance mode",0,0,10));
-    gui.add(roiX.set("ROI x",0,0,1));
+    gui.add(flickerAvoid.set("Flicker Avoid",0,0,4));
+	gui.add(roiX.set("ROI x",0,0,1));
     gui.add(roiY.set("ROI y",0,0,1));
     gui.add(roiW.set("ROI w",1,0,1));
     gui.add(roiH.set("ROI h",1,0,1));
@@ -81,6 +82,12 @@ void ofApp::setup(){
 	exposureModes[11] = "antishake";
 	exposureModes[12] = "fireworks";
 	exposureModes[13] = "max";
+	
+	flickerAvoids[0]	= "off";
+	flickerAvoids[1]	= "auto";
+	flickerAvoids[2]	= "50Hz";
+	flickerAvoids[3]	= "60Hz";
+	flickerAvoids[4]	= "Max";
 	
 #ifdef __arm__
     cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
@@ -335,12 +342,17 @@ void ofApp::update(){
 			awbModeInt = rm.getArgAsInt32(0);
 			cam.setAWBMode((MMAL_PARAM_AWBMODE_T)awbModeInt);
 		}
+		else if(rm.getAddress() == "/flickerAvoid" + RPiId){
+			flickerAvoidInt = rm.getArgAsInt32(0);
+			cam.setFlickerAvoid((MMAL_PARAM_FLICKERAVOID_T)flickerAvoidInt);
+		}
 		else if(rm.getAddress() == "/shutterSpeed" + RPiId){
 			shutterSpeed = rm.getArgAsInt32(0);
 			cam.setShutterSpeed(shutterSpeed);
 		}
 #endif
 		else if(rm.getAddress() == "/resetBG" + RPiId){
+			frame.convertTo(accum, CV_32F);
 			background.reset();
 		}
 		else if(rm.getAddress() == "/loadFromFile" + RPiId){
@@ -389,6 +401,7 @@ void ofApp::keyPressed  (int key){
     ofLogVerbose() << "keyPressed: " << key;
 
     if(key == ' ') {
+		frame.convertTo(accum, CV_32F);
         background.reset();
     }
 

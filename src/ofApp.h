@@ -85,7 +85,8 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		string exposureModes[14];
 		string exposureMeteringModes[5];
 		string awbModes[11];
-        ofParameter<float> roiX;
+		string flickerAvoids[11];
+		ofParameter<float> roiX;
         ofParameter<float> roiY;
         ofParameter<float> roiW;
         ofParameter<float> roiH;
@@ -94,10 +95,12 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         ofParameter<int> exposureMode;
         ofParameter<int> awbMode;
         ofParameter<int> shutterSpeed;
-        int awbModeInt;
+        ofParameter<int> flickerAvoid;
+		int awbModeInt;
         int exposureModeInt;
         int exposureMeteringModeInt;
-
+		int flickerAvoidInt;
+	
 		ConsoleListener consoleListener;
 };
 

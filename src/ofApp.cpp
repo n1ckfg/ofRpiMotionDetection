@@ -401,19 +401,19 @@ void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
     background.setThresholdValue(backgroundThreshold);
 }
 #ifdef __arm__
-void ofApp::roiXChanged(int &roiX) {
+void ofApp::roiXChanged(float &roiX) {
 	ROI.x = roiX;
 	cam.setROI(ROI);
 }
-void ofApp::roiYChanged(int &roiY) {
+void ofApp::roiYChanged(float &roiY) {
 	ROI.y = roiY;
 	cam.setROI(ROI);
 }
-void ofApp::roiWChanged(int &roiW) {
+void ofApp::roiWChanged(float &roiW) {
 	ROI.width = roiW;
 	cam.setROI(ROI);
 }
-void ofApp::roiHChanged(int &roiH) {
+void ofApp::roiHChanged(float &roiH) {
 	ROI.height = roiH;
 	cam.setROI(ROI);
 }

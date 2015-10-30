@@ -37,10 +37,10 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void fpsChanged(int &fps);
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
-		void roiXChanged(int &roiX);
-		void roiYChanged(int &roiY);
-		void roiWChanged(int &roiW);
-		void roiHChanged(int &roiH);
+		void roiXChanged(float &roiX);
+		void roiYChanged(float &roiY);
+		void roiWChanged(float &roiW);
+		void roiHChanged(float &roiH);
 		void exposureCompensationChanged(int &exposureCompensation);
 		void exposureMeteringModeChanged(int &exposureMeteringMode);
 		void exposureModeChanged(int &exposureMode);
@@ -51,7 +51,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		// program ID
 		string RPiId;
 	
-    private:
+//    private:
 	
 		int framenr;
 	

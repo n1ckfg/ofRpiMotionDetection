@@ -338,7 +338,7 @@ void ofApp::update(){
 #ifdef __arm__
 		else if(rm.getAddress() == "/roiX" + RPiId){
 			roiX = rm.getArgAsFloat(0);
-			ROI.y = roiX;
+			ROI.x = roiX;
 			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/roiY" + RPiId){
@@ -348,12 +348,12 @@ void ofApp::update(){
 		}
 		else if(rm.getAddress() == "/roiW" + RPiId){
 			roiW = rm.getArgAsFloat(0);
-			ROI.y = roiW;
+			ROI.width = roiW;
 			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/roiH" + RPiId){
 			roiH = rm.getArgAsFloat(0);
-			ROI.y = roiH;
+			ROI.height = roiH;
 			cam.setROI(ROI);
 		}
 		else if(rm.getAddress() == "/exposureCompensation" + RPiId){
@@ -410,11 +410,11 @@ void ofApp::roiYChanged(int &roiY) {
 	cam.setROI(ROI);
 }
 void ofApp::roiWChanged(int &roiW) {
-	ROI.w = roiW;
+	ROI.width = roiW;
 	cam.setROI(ROI);
 }
 void ofApp::roiHChanged(int &roiH) {
-	ROI.h = roiH;
+	ROI.height = roiH;
 	cam.setROI(ROI);
 }
 void ofApp::exposureCompensationChanged(int &exposureCompensation) {
@@ -437,7 +437,6 @@ void ofApp::flickerAvoidChanged(int &flickerAvoid) {
 	cam.setFlickerAvoid((MMAL_PARAM_FLICKERAVOID_T)flickerAvoidInt);
 }
 void ofApp::shutterSpeedChanged(int &shutterSpeed) {
-	shutterSpeedInt = shutterSpeed;
 	cam.setShutterSpeed(shutterSpeed);
 }
 #endif

@@ -22,7 +22,6 @@ void ofApp::setup(){
     gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
-    gui.add(accumFactor.set("accumFactor",0.3,0.,1.));
 	gui.add(backgroundThreshold.set("backgroundThreshold",10,1,300));
     gui.add(erodeFactor.set("erodeFactor",1,0,3));
     gui.add(dilateFactor.set("dilateFactor",2,0,3));
@@ -30,7 +29,25 @@ void ofApp::setup(){
     gui.add(minContourArea.set("minContourArea",20, 5, 40));
     gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
+    gui.add(accumFactor.set("accumFactor",0.3,0.,1.));
 	gui.add(useAccum.set("useAccum", true));
+	
+	// Optical Flow
+	gui.add(useOpticalFlow.set("Use Optical Flow", false));
+	gui.add(lkMaxLevel.set("lkMaxLevel", 3, 0, 8));
+	gui.add(lkMaxFeatures.set("lkMaxFeatures", 200, 1, 1000));
+	gui.add(lkQualityLevel.set("lkQualityLevel", 0.01, 0.001, .02));
+	gui.add(lkMinDistance.set("lkMinDistance", 4, 1, 16));
+	gui.add(lkWinSize.set("lkWinSize", 8, 4, 64));
+	gui.add(usefb.set("Use Farneback", true));
+	gui.add(fbPyrScale.set("fbPyrScale", .5, 0, .99));
+	gui.add(fbLevels.set("fbLevels", 4, 1, 8));
+	gui.add(fbIterations.set("fbIterations", 2, 1, 8));
+	gui.add(fbPolyN.set("fbPolyN", 7, 5, 10));
+	gui.add(fbPolySigma.set("fbPolySigma", 1.5, 1.1, 2));
+	gui.add(fbUseGaussian.set("fbUseGaussian", false));
+	gui.add(fbWinSize.set("winSize", 32, 4, 64));
+	curFlow = &fb;
 
 	// camera params
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
@@ -106,8 +123,8 @@ void ofApp::setup(){
 #endif
 
 	// OSC
-    //sender.setup("192.168.255.255", 8000);
-    sender.setup("192.168.1.3", 8000);
+    sender.setup("192.168.255.255", 8000);
+    //sender.setup("192.168.1.3", 8000);
  	receiver.setup(OSC_PORT);
 	
 	//load params
@@ -187,6 +204,26 @@ void ofApp::update(){
 			background.update(frame, thresholded);
 			thresholded.update();
 		}
+		
+		// Optical Flow
+		if(usefb) {
+			curFlow = &fb;
+			fb.setPyramidScale(fbPyrScale);
+			fb.setNumLevels(fbLevels);
+			fb.setWindowSize(fbWinSize);
+			fb.setNumIterations(fbIterations);
+			fb.setPolyN(fbPolyN);
+			fb.setPolySigma(fbPolySigma);
+			fb.setUseGaussian(fbUseGaussian);
+		} else {
+			curFlow = &lk;
+			lk.setMaxFeatures(lkMaxFeatures);
+			lk.setQualityLevel(lkQualityLevel);
+			lk.setMinDistance(lkMinDistance);
+			lk.setWindowSize(lkWinSize);
+			lk.setMaxLevel(lkMaxLevel);
+		}
+		if (useOpticalFlow) curFlow->calcOpticalFlow(thresholded);
 		
 		// Filter noise after threshold
         frameProcessed = toCv(thresholded);
@@ -448,6 +485,7 @@ void ofApp::draw(){
     drawMat(accum,640,0,320,240);
 	drawMat(frameProcessed,0,240,320,240);
     thresholded.draw(320, 0,320,240);
+	curFlow->draw(640,240,320,240);
 
     contourFinder.draw(320,240,320,240);
 

@@ -77,6 +77,14 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 	    ofImage image;
 		ofPixels tosave;
 	
+		// Optical flow
+	ofxCv::FlowFarneback fb;
+	ofxCv::FlowPyrLK lk;
+	ofxCv::Flow* curFlow;
+	ofParameter<float> fbPyrScale, lkQualityLevel, fbPolySigma;
+	ofParameter<int> fbLevels, lkWinSize, fbIterations, fbPolyN, fbWinSize, lkMaxLevel, lkMaxFeatures, lkMinDistance;
+	ofParameter<bool> fbUseGaussian, usefb, useOpticalFlow;
+	
 		// Settings
 		ofxPanel gui;
 		ofParameter<int> cutDown;

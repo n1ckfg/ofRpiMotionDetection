@@ -206,25 +206,26 @@ void ofApp::update(){
 		}
 		
 		// Optical Flow
-		if(usefb) {
-			curFlow = &fb;
-			fb.setPyramidScale(fbPyrScale);
-			fb.setNumLevels(fbLevels);
-			fb.setWindowSize(fbWinSize);
-			fb.setNumIterations(fbIterations);
-			fb.setPolyN(fbPolyN);
-			fb.setPolySigma(fbPolySigma);
-			fb.setUseGaussian(fbUseGaussian);
-		} else {
-			curFlow = &lk;
-			lk.setMaxFeatures(lkMaxFeatures);
-			lk.setQualityLevel(lkQualityLevel);
-			lk.setMinDistance(lkMinDistance);
-			lk.setWindowSize(lkWinSize);
-			lk.setMaxLevel(lkMaxLevel);
+		if (useOpticalFlow){
+			if(usefb) {
+				curFlow = &fb;
+				fb.setPyramidScale(fbPyrScale);
+				fb.setNumLevels(fbLevels);
+				fb.setWindowSize(fbWinSize);
+				fb.setNumIterations(fbIterations);
+				fb.setPolyN(fbPolyN);
+				fb.setPolySigma(fbPolySigma);
+				fb.setUseGaussian(fbUseGaussian);
+			} else {
+				curFlow = &lk;
+				lk.setMaxFeatures(lkMaxFeatures);
+				lk.setQualityLevel(lkQualityLevel);
+				lk.setMinDistance(lkMinDistance);
+				lk.setWindowSize(lkWinSize);
+				lk.setMaxLevel(lkMaxLevel);
+			}
+		curFlow->calcOpticalFlow(thresholded);
 		}
-		if (useOpticalFlow) curFlow->calcOpticalFlow(thresholded);
-		
 		// Filter noise after threshold
         frameProcessed = toCv(thresholded);
         medianBlur ( frameProcessed, frameProcessed, medianBlurFactor );

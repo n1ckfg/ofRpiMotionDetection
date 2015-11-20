@@ -29,6 +29,7 @@
 		0885BCE41BD7EE3B00157B4F /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0885BCD91BD7EE3B00157B4F /* ofxSlider.cpp */; };
 		0885BCE51BD7EE3B00157B4F /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0885BCDB1BD7EE3B00157B4F /* ofxSliderGroup.cpp */; };
 		0885BCE61BD7EE3B00157B4F /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0885BCDD1BD7EE3B00157B4F /* ofxToggle.cpp */; };
+		0890E6331BFF47210030187E /* ofxOpticalFlowFarneback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0890E62B1BFF47210030187E /* ofxOpticalFlowFarneback.cpp */; };
 		10b69de456aed1288fc9316b62b715d7 /* Tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = a810df70319a10353588f5db2ed2e2b6 /* Tracker.cpp */; };
 		169d3c72fde6c5590a1616f500a456b4 /* ofxCvFloatImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7b6a03390302d5a2c9f0e4ab630ae8d6 /* ofxCvFloatImage.cpp */; };
 		1d5f3298c2fa073628012944b1efde88 /* ofxCvContourFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = c76de5c29bdbd2caa1dd0021a7376220 /* ofxCvContourFinder.cpp */; };
@@ -158,6 +159,8 @@
 		0885BCDC1BD7EE3B00157B4F /* ofxSliderGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxSliderGroup.h; sourceTree = "<group>"; };
 		0885BCDD1BD7EE3B00157B4F /* ofxToggle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxToggle.cpp; sourceTree = "<group>"; };
 		0885BCDE1BD7EE3B00157B4F /* ofxToggle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxToggle.h; sourceTree = "<group>"; };
+		0890E62B1BFF47210030187E /* ofxOpticalFlowFarneback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOpticalFlowFarneback.cpp; sourceTree = "<group>"; };
+		0890E62C1BFF47210030187E /* ofxOpticalFlowFarneback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxOpticalFlowFarneback.h; sourceTree = "<group>"; };
 		096cb33cad6c5a446e7026e9ff234dc2 /* dynamic_bitset.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = dynamic_bitset.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/dynamic_bitset.h; sourceTree = SOURCE_ROOT; };
 		0cf0aa3895d28e97d8a1e4a938976234 /* ground_truth.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ground_truth.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/ground_truth.h; sourceTree = SOURCE_ROOT; };
 		114b872696817cc33990fc83feb1259e /* imgproc.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = imgproc.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/imgproc/imgproc.hpp; sourceTree = SOURCE_ROOT; };
@@ -481,6 +484,24 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		0890E60C1BFF47210030187E /* ofxOpticalFlowFarneback */ = {
+			isa = PBXGroup;
+			children = (
+				0890E62A1BFF47210030187E /* src */,
+			);
+			name = ofxOpticalFlowFarneback;
+			path = ../../../addons/ofxOpticalFlowFarneback;
+			sourceTree = "<group>";
+		};
+		0890E62A1BFF47210030187E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				0890E62B1BFF47210030187E /* ofxOpticalFlowFarneback.cpp */,
+				0890E62C1BFF47210030187E /* ofxOpticalFlowFarneback.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		0f07fe174552def007bf5ad5d0f37785 /* opencv2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -727,6 +748,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				0890E60C1BFF47210030187E /* ofxOpticalFlowFarneback */,
 				0885BCCC1BD7EE3B00157B4F /* ofxGui */,
 				0885BC921BD7EBBA00157B4F /* ofxOsc */,
 				6025faf6414c2ca589764d26b59a2f04 /* ofxCv */,
@@ -1021,6 +1043,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0890E6331BFF47210030187E /* ofxOpticalFlowFarneback.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				0885BCC91BD7EBBA00157B4F /* ofxOscReceiver.cpp in Sources */,

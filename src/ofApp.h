@@ -9,6 +9,7 @@
 #include "ofxOsc.h"
 #include "ofxOpenCv.h"
 #include "ofxGui.h"
+#include "ofxOpticalFlowFarneback.h"
 
 #define NUM_MSG_STRINGS 20
 #define OSC_PORT 8001
@@ -78,6 +79,10 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofPixels tosave;
 	
 		// Optical flow
+	ofxOpticalFlowFarneback flowFB;
+	ofImage flow;
+	ofPixels flowPix;
+	
 	ofxCv::FlowFarneback fb;
 	ofxCv::FlowPyrLK lk;
 	ofxCv::Flow* curFlow;

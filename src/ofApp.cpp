@@ -187,24 +187,6 @@ void ofApp::update(){
 		// Low pass filter
         threshold( frame, frame, cutDown, 255, 2 );
 
-		if(useAccum) {
-			// accumulate few frames in order to wipe out noise
-			accum.convertTo(accum, CV_32F);
-			cv::accumulateWeighted(frame, accum, accumFactor);
-			accum.convertTo(accum, CV_8U);
-			// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
-			//		cout << "framein" << frame.type() << endl;
-			//		cout << "accumin" << accum.type() << endl;
-			
-			//BG subtraction
-			background.update(accum, thresholded);
-			thresholded.update();
-		}else{
-			//BG subtraction
-			background.update(frame, thresholded);
-			thresholded.update();
-		}
-		
 		// Optical Flow
 		if (useOpticalFlow){
 			if(usefb) {
@@ -224,8 +206,27 @@ void ofApp::update(){
 				lk.setWindowSize(lkWinSize);
 				lk.setMaxLevel(lkMaxLevel);
 			}
-		curFlow->calcOpticalFlow(thresholded);
+			curFlow->calcOpticalFlow(frame);
 		}
+		
+		// accumulate few frames in current frame in order to wipe out noise
+		if(useAccum) {
+			accum.convertTo(accum, CV_32F);
+			cv::accumulateWeighted(frame, accum, accumFactor);
+			accum.convertTo(accum, CV_8U);
+			// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
+			//		cout << "framein" << frame.type() << endl;
+			//		cout << "accumin" << accum.type() << endl;
+			
+			//BG subtraction
+			background.update(accum, thresholded);
+			thresholded.update();
+		}else{
+			//BG subtraction
+			background.update(frame, thresholded);
+			thresholded.update();
+		}
+		
 		// Filter noise after threshold
         frameProcessed = toCv(thresholded);
         medianBlur ( frameProcessed, frameProcessed, medianBlurFactor );

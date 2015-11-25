@@ -140,9 +140,9 @@ void ofApp::setup(){
 */
 	
 	// OSC
-//    sender.setup("192.168.255.255", 8000);	//multicast
-//    sender.setup("192.168.1.3", 8000);		//one client
-	sender.setup("localhost", 8000);			//debugging
+	sender.setup("192.168.255.255", 8000);	//multicast
+//	sender.setup("192.168.1.3", 8000);		//one client
+//	sender.setup("localhost", 8000);			//debugging
  	receiver.setup(OSC_PORT);
 	
 	

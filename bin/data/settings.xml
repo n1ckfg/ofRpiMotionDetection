@@ -1,0 +1,34 @@
+<panel>
+	<cutDown>110</cutDown>
+	<fps>15</fps>
+	<learningTime>100</learningTime>
+	<backgroundThreshold>51</backgroundThreshold>
+	<erodeFactor>1</erodeFactor>
+	<dilateFactor>3</dilateFactor>
+	<medianBlur>3</medianBlur>
+	<minContourArea>5</minContourArea>
+	<maxContourArea>19200</maxContourArea>
+	<maxContours>5</maxContours>
+<exposure_compensation>0</exposure_compensation>
+	<exposure_metering_mode>0</exposure_metering_mode>
+	<exposure_mode>0</exposure_mode>
+	<shutter_speed>0</shutter_speed>
+	<AutoWhiteBalance_mode>0</AutoWhiteBalance_mode>
+	<ROI_x>0</ROI_x>
+	<ROI_y>0</ROI_y>
+	<ROI_w>1</ROI_w>
+	<ROI_h>1</ROI_h>
+<accumFactor>0.97</accumFactor>
+<panel/>
+<useAccum>1</useAccum>
+<boolDraw>0</boolDraw>
+	<Optical_Flow__or_BG_Subtraction_>1</Optical_Flow__or_BG_Subtraction_>
+	<fbPyrScale>0.99</fbPyrScale>
+	<fbLevels>3</fbLevels>
+	<winSize>5</winSize>
+	<fbIterations>2</fbIterations>
+	<fbPolyN>7</fbPolyN>
+	<fbPolySigma>1.5</fbPolySigma>
+	<fbUseGaussian>0</fbUseGaussian>
+	<Flicker_Avoid>0</Flicker_Avoid>
+</panel>

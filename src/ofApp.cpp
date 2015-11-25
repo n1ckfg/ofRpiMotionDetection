@@ -201,7 +201,8 @@ void ofApp::update(){
 			cout << "background reset " << matInput.type() << endl;
 		}
 		if(matAccum.empty()) {
-			matInput.convertTo(matAccum, CV_32F);
+//			matInput.convertTo(matAccum, CV_32F);
+			ofxCv::copy(matInput, matAccum);
 			cout << "matAccum init with type " << matInput.type() << endl;
 		}
 
@@ -237,14 +238,19 @@ void ofApp::update(){
 						cout << "matAccum W " << matAccum.size[0] << endl;
 						cout << "matAccum H " << matAccum.size[1] << endl;
 */
-				matToProcess=ofxCv::toCv(flowPix);
-				matAccum.convertTo(matAccum, CV_32F);
-				ofxCv::accumulateWeighted(matToProcess, matAccum, accumFactor);
-				matAccum.convertTo(matAccum, CV_8U);
+				matToProcess = ofxCv::toCv(flowPix);
+//				cv::addWeighted( matToProcess, 255.0, matAccum, accumFactor, 0.1, matAccum);
+				cv::scaleAdd(matAccum, accumFactor, matToProcess, matAccum);
+//				cv::add(matToProcess, matAccum, matAccum);
+//				matAccum.convertTo(matAccum, CV_32F);
+//				ofxCv::accumulateWeighted(matToProcess, matAccum, accumFactor);
+//				matAccum.convertTo(matAccum, CV_8U);
 
 				//BG subtraction
-				background.update(matAccum, thresholded);
+//				background.update(matAccum, thresholded);
 //				ofxCv::toOf(matAccum, thresholded);
+				ofxCv::copy(matAccum, thresholded);
+				ofxCv::threshold(thresholded, backgroundThreshold);
 			}else{
 //				thresholded.setFromPixels(flowPix);
 				//BG subtraction

@@ -1,10 +1,10 @@
 # Some general ignore patterns
 
 */bin/*
-#!*/bin/data/
+!*/bin/data/
 # for bin folder in root
 /bin/*
-#!/bin/data/
+!/bin/data/
 
 build/
 obj/

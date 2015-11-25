@@ -87,16 +87,11 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofPixels flowPix;
 		ofxCvGrayscaleImage flowMat;
 	
-		ofParameter<float> fbPyrScale, lkQualityLevel, fbPolySigma;
-		ofParameter<int> fbLevels, lkWinSize, fbIterations, fbPolyN, fbWinSize, lkMaxLevel, lkMaxFeatures, lkMinDistance;
-		ofParameter<bool> boolDraw, fbUseGaussian, usefb, useOpticalFlow;
-
-//	ofxCv::FlowFarneback fb;
-//	ofxCv::FlowPyrLK lk;
-//	ofxCv::Flow* curFlow;
-	
 		// Settings
 		ofxPanel gui;
+		ofParameter<bool> boolDraw;
+	
+		//Settings CV
 		ofParameter<int> cutDown;
 		ofParameter<int> fps;
 		ofParameter<int> learningTime;
@@ -111,18 +106,29 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<bool> useAccum;
 		string filename_save;
 	
+		//Settings opticalFlow
+		ofParameter<bool> useOpticalFlow;
+		ofParameter<float> fbPyrScale;
+		ofParameter<int> fbLevels;
+		ofParameter<int> fbWinSize;
+		ofParameter<int> fbIterations;
+		ofParameter<int> fbPolyN;
+		ofParameter<float> fbPolySigma;
+		ofParameter<bool> fbUseGaussian;
+	
+		//Settigns camera
 		ofRectangle ROI;
-		ofParameter<float> roiX;
-        ofParameter<float> roiY;
-        ofParameter<float> roiW;
-        ofParameter<float> roiH;
         ofParameter<int>  exposureCompensation;
         ofParameter<int> exposureMeteringMode;
         ofParameter<int> exposureMode;
-        ofParameter<int> awbMode;
         ofParameter<int> shutterSpeed;
+		ofParameter<int> awbMode;
         ofParameter<int> flickerAvoid;
-        int exposureMeteringModeInt;
+		ofParameter<float> roiX;
+		ofParameter<float> roiY;
+		ofParameter<float> roiW;
+		ofParameter<float> roiH;
+		int exposureMeteringModeInt;
         int exposureModeInt;
 		int awbModeInt;
 		int flickerAvoidInt;

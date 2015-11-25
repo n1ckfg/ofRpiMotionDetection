@@ -34,7 +34,6 @@ void ofApp::setup(){
 	
 	// openCV params
 	gui.add(boolDraw.set("boolDraw", true));
-	gui.add(useOpticalFlow.set("Optical Flow (or BG Subtraction)", true));
 	gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
@@ -45,35 +44,18 @@ void ofApp::setup(){
     gui.add(minContourArea.set("minContourArea",20, 5, W*H));
     gui.add(maxContourArea.set("maxContourArea", 300, 40, W*H)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
-    gui.add(accumFactor.set("accumFactor",0.3,0.,1.));
-	gui.add(useAccum.set("useAccum", false));
-	
+    gui.add(accumFactor.set("accumFactor", 0.93, 0.,1.));
+	gui.add(useAccum.set("useAccum", true));
+
 	// Optical Flow
+	gui.add(useOpticalFlow.set("Optical Flow (or BG Subtraction)", true));
 	gui.add(fbPyrScale.set("fbPyrScale", .5, 0, .99));
 	gui.add(fbLevels.set("fbLevels", 4, 1, 8));
-	gui.add(fbWinSize.set("winSize", 32, 4, 64));
+	gui.add(fbWinSize.set("winSize", 3, 4, 64));
 	gui.add(fbIterations.set("fbIterations", 2, 1, 8));
 	gui.add(fbPolyN.set("fbPolyN", 7, 5, 10));
 	gui.add(fbPolySigma.set("fbPolySigma", 1.5, 1.1, 2));
 	gui.add(fbUseGaussian.set("fbUseGaussian", false));
-
-	flowFB.setup(W, H,
-				 fbPyrScale,
-				 fbLevels,
-				 fbWinSize,
-				 fbIterations,
-				 fbPolyN,
-				 fbPolySigma,
-				 false,
-				 fbUseGaussian);
-	
-	//	gui.add(lkMaxLevel.set("lkMaxLevel", 3, 0, 8));
-	//	gui.add(lkMaxFeatures.set("lkMaxFeatures", 200, 1, 1000));
-	//	gui.add(lkQualityLevel.set("lkQualityLevel", 0.01, 0.001, .02));
-	//	gui.add(lkMinDistance.set("lkMinDistance", 4, 1, 16));
-	//	gui.add(lkWinSize.set("lkWinSize", 8, 4, 64));
-	//	gui.add(usefb.set("Use Farneback", true));
-//	curFlow = &fb;
 
 	// camera params
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
@@ -142,7 +124,7 @@ void ofApp::setup(){
 	// OSC
 	sender.setup("192.168.255.255", 8000);	//multicast
 //	sender.setup("192.168.1.3", 8000);		//one client
-//	sender.setup("localhost", 8000);			//debugging
+//	sender.setup("localhost", 8000);		//debugging
  	receiver.setup(OSC_PORT);
 	
 	
@@ -157,6 +139,17 @@ void ofApp::setup(){
 		ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
 		gui.loadFromFile(filename_save);
 	}
+
+	// load Optical flow params
+	flowFB.setup(W, H,
+				 fbPyrScale,
+				 fbLevels,
+				 fbWinSize,
+				 fbIterations,
+				 fbPolyN,
+				 fbPolySigma,
+				 false,
+				 fbUseGaussian);
 
 	// load openCV params
 	background.setLearningTime(learningTime);
@@ -354,8 +347,8 @@ void ofApp::update(){
 		ofxOscMessage sm;//sentMessage
 		receiver.getNextMessage(&rm);
 
-		if(rm.getAddress() == "/getParams"){
-			sm.setAddress("/allParams");
+		if(rm.getAddress() == "/getCvParams"){
+			sm.setAddress("/cvParams");
 			sm.addStringArg(RPiId);
 			sm.addIntArg(cutDown);
 			sm.addIntArg(fps);
@@ -367,10 +360,39 @@ void ofApp::update(){
 			sm.addIntArg(minContourArea);
 			sm.addIntArg(maxContourArea);
 			sm.addIntArg(maxContours);
-
+			sm.addFloatArg(accumFactor);
+			sm.addIntArg(useAccum);
 			sender.sendMessage(sm);
 		}
-		if(rm.getAddress() == "/save"){
+		if(rm.getAddress() == "/getFlowParams"){
+			sm.setAddress("/flowParams");
+			sm.addStringArg(RPiId);
+			sm.addIntArg(useOpticalFlow);
+			sm.addFloatArg(fbPyrScale);
+			sm.addIntArg(fbLevels);
+			sm.addIntArg(fbWinSize);
+			sm.addIntArg(fbIterations);
+			sm.addIntArg(fbPolyN);
+			sm.addFloatArg(fbPolySigma);
+			sm.addIntArg(fbUseGaussian);
+			sender.sendMessage(sm);
+		}
+		if(rm.getAddress() == "/getCameraParams"){
+			sm.setAddress("/cameraParams");
+			sm.addStringArg(RPiId);
+			sm.addIntArg(exposureCompensation);
+			sm.addIntArg(exposureMeteringMode);
+			sm.addIntArg(exposureMode);
+			sm.addIntArg(shutterSpeed);
+			sm.addIntArg(awbMode);
+			sm.addIntArg(flickerAvoid);
+			sm.addFloatArg(roiX);
+			sm.addFloatArg(roiY);
+			sm.addFloatArg(roiW);
+			sm.addFloatArg(roiH);
+			sender.sendMessage(sm);
+		}
+		if(rm.getAddress() == "/saveSettings"){
 			gui.saveToFile(filename_save);
 		}
 		else if(rm.getAddress() == "/whoIsThere"){
@@ -382,13 +404,22 @@ void ofApp::update(){
 			matInput.convertTo(matAccum, CV_32F);
 			background.reset();
 		}
-		else if(rm.getAddress() == "/loadFromFile" + RPiId){
+		else if(rm.getAddress() == "/loadSettings" + RPiId){
 			if(ofFile::doesFileExist(filename_save)){
 				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
 				gui.loadFromFile(filename_save);
 			}
 			else{
 				ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
+			}
+		}
+		else if(rm.getAddress() == "/loadDefaultSettings" + RPiId){
+			if(ofFile::doesFileExist("settings.xml")){
+				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
+				gui.loadFromFile("settings.xml");
+			}
+			else{
+				ofLog(OF_LOG_NOTICE) << "settings.xml does not exist" << endl;
 			}
 		}
 		
@@ -433,6 +464,32 @@ void ofApp::update(){
 			useAccum = bool(rm.getArgAsInt32(0));
 		}
 
+		// optical flow params from OSC
+		else if(rm.getAddress() == "/useOpticalFlow" + RPiId){
+			useOpticalFlow = bool(rm.getArgAsInt32(0));
+		}
+		else if(rm.getAddress() == "/fbPyrScale" + RPiId){
+			fbPyrScale = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/fbLevels" + RPiId){
+			fbLevels = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/fbWinSize" + RPiId){
+			fbWinSize = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/fbIterations" + RPiId){
+			fbIterations = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/fbPolyN" + RPiId){
+			fbPolyN = rm.getArgAsInt32(0);
+		}
+		else if(rm.getAddress() == "/fbPolySigma" + RPiId){
+			fbPolySigma = rm.getArgAsFloat(0);
+		}
+		else if(rm.getAddress() == "/fbUseGaussian" + RPiId){
+			fbUseGaussian = bool(rm.getArgAsInt32(0));
+		}
+		
 		// camera params from OSC
 #ifdef __arm__
 		else if(rm.getAddress() == "/roiX" + RPiId){

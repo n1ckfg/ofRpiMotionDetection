@@ -14,8 +14,8 @@
 #define NUM_MSG_STRINGS 20
 #define OSC_PORT 8001
 
-using namespace ofxCv;
-using namespace cv;
+//using namespace ofxCv;
+//using namespace cv;
 
 
 class ofApp : public ofBaseApp, public SSHKeyListener{
@@ -38,6 +38,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		void fpsChanged(int &fps);
 		void learningTimeChanged(int &learningTime);
 		void backgroundThresholdChanged(int &backgroundThreshold);
+		void useOpticalFlowChanged(bool &useOpticalFlow);
 		void roiXChanged(float &roiX);
 		void roiYChanged(float &roiY);
 		void roiWChanged(float &roiW);
@@ -51,15 +52,17 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 	
 		// program ID
 		string RPiId;
+
+	//Console
+		ConsoleListener consoleListener;
+		void onCharacterReceived(SSHKeyListenerEventData& e);
 	
 //    private:
-	
+		int W, H;
 		int framenr;
 	
 #ifdef __arm__
 		ofxCvPiCam cam;
-#else
-		ofVideoGrabber cam;
 #endif
 	
 		// OSC
@@ -67,28 +70,30 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofxOscReceiver receiver;
 	
 		// Cv
-		ofPixels pix;
+		cv::Mat matInput;
+		cv::Mat matToProcess;
+		cv::Mat matAccum;
+
+		ofPixels tosave, pixProcessed;
+		ofImage thresholded, imageSequence, processed;
+		ofxCv::RunningBackground		background;
+		ofxCvGrayscaleImage				toContours;
+		ofxCvContourFinder				contourFinder;
 		int sent_blobs;
-		ofImage thresholded;
-		Mat frame, frameProcessed, accum;
-		ofxCv::RunningBackground background;
-		void onCharacterReceived(SSHKeyListenerEventData& e);
-		ofxCvContourFinder 	contourFinder;
-		ofxCvGrayscaleImage    grayImage;
-	    ofImage image;
-		ofPixels tosave;
+
 	
 		// Optical flow
-	ofxOpticalFlowFarneback flowFB;
-	ofImage flow;
-	ofPixels flowPix;
+		ofxOpticalFlowFarneback flowFB;
+		ofPixels flowPix;
+		ofxCvGrayscaleImage flowMat;
 	
-	ofxCv::FlowFarneback fb;
-	ofxCv::FlowPyrLK lk;
-	ofxCv::Flow* curFlow;
-	ofParameter<float> fbPyrScale, lkQualityLevel, fbPolySigma;
-	ofParameter<int> fbLevels, lkWinSize, fbIterations, fbPolyN, fbWinSize, lkMaxLevel, lkMaxFeatures, lkMinDistance;
-	ofParameter<bool> fbUseGaussian, usefb, useOpticalFlow;
+		ofParameter<float> fbPyrScale, lkQualityLevel, fbPolySigma;
+		ofParameter<int> fbLevels, lkWinSize, fbIterations, fbPolyN, fbWinSize, lkMaxLevel, lkMaxFeatures, lkMinDistance;
+		ofParameter<bool> boolDraw, fbUseGaussian, usefb, useOpticalFlow;
+
+//	ofxCv::FlowFarneback fb;
+//	ofxCv::FlowPyrLK lk;
+//	ofxCv::Flow* curFlow;
 	
 		// Settings
 		ofxPanel gui;
@@ -104,7 +109,7 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
 		ofParameter<int> maxContourArea;
 		ofParameter<int> maxContours;
 		ofParameter<bool> useAccum;
-	string filename_save;
+		string filename_save;
 	
 		ofRectangle ROI;
 		ofParameter<float> roiX;
@@ -121,8 +126,6 @@ class ofApp : public ofBaseApp, public SSHKeyListener{
         int exposureModeInt;
 		int awbModeInt;
 		int flickerAvoidInt;
-	
-	ConsoleListener consoleListener;
 	
 	//		string exposureModes[14];
 	//		string exposureMeteringModes[5];

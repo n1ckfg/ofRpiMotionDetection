@@ -3,7 +3,7 @@
 
 
 using namespace ofxCv;
-using namespace cv;
+//using namespace cv;
 
 void ofApp::onCharacterReceived(SSHKeyListenerEventData& e)
 {
@@ -11,43 +11,69 @@ void ofApp::onCharacterReceived(SSHKeyListenerEventData& e)
 }
 //--------------------------------------------------------------
 void ofApp::setup(){
-	ofSetFrameRate(fps);
+	W = 160;
+	H = 120;
+	
+	// Matrix allocation
+	flowPix.allocate(W, H, OF_IMAGE_GRAYSCALE);
+	
+	// camera Grabber
+#ifdef __arm__
+	cam.setup(W,H,false);//setup camera (w,h,color = true,gray = false);
+	cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
+	// one of these two gives black during night time
+	//    cam.setExposureCompensation(0);
+	//    cam.setAWBMode(MMAL_PARAM_AWBMODE_OFF);
+#endif
+
     ofLog() << "RPid " << RPiId;
 	framenr = 1;
 	
 	gui.setup("panel");
-    gui.setPosition(650,10);
+    gui.setPosition(1000,0);
 	
 	// openCV params
-    gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
+	gui.add(boolDraw.set("boolDraw", true));
+	gui.add(useOpticalFlow.set("Optical Flow (or BG Subtraction)", true));
+	gui.add(cutDown.set( "cutDown", 110, 1, 255 ));
     gui.add(fps.set("fps", 15, 1, 30));
     gui.add(learningTime.set("learningTime",100,1,1000));
 	gui.add(backgroundThreshold.set("backgroundThreshold",10,1,300));
     gui.add(erodeFactor.set("erodeFactor",1,0,3));
     gui.add(dilateFactor.set("dilateFactor",2,0,3));
     gui.add(medianBlurFactor.set("medianBlur",3,0,5));
-    gui.add(minContourArea.set("minContourArea",20, 5, 40));
-    gui.add(maxContourArea.set("maxContourArea", 300, 40, 160*120)); // one third of the screen.
+    gui.add(minContourArea.set("minContourArea",20, 5, W*H));
+    gui.add(maxContourArea.set("maxContourArea", 300, 40, W*H)); // one third of the screen.
     gui.add(maxContours.set("maxContours", 5, 1, 10));
     gui.add(accumFactor.set("accumFactor",0.3,0.,1.));
-	gui.add(useAccum.set("useAccum", true));
+	gui.add(useAccum.set("useAccum", false));
 	
 	// Optical Flow
-	gui.add(useOpticalFlow.set("Use Optical Flow", false));
-	gui.add(lkMaxLevel.set("lkMaxLevel", 3, 0, 8));
-	gui.add(lkMaxFeatures.set("lkMaxFeatures", 200, 1, 1000));
-	gui.add(lkQualityLevel.set("lkQualityLevel", 0.01, 0.001, .02));
-	gui.add(lkMinDistance.set("lkMinDistance", 4, 1, 16));
-	gui.add(lkWinSize.set("lkWinSize", 8, 4, 64));
-	gui.add(usefb.set("Use Farneback", true));
 	gui.add(fbPyrScale.set("fbPyrScale", .5, 0, .99));
 	gui.add(fbLevels.set("fbLevels", 4, 1, 8));
+	gui.add(fbWinSize.set("winSize", 32, 4, 64));
 	gui.add(fbIterations.set("fbIterations", 2, 1, 8));
 	gui.add(fbPolyN.set("fbPolyN", 7, 5, 10));
 	gui.add(fbPolySigma.set("fbPolySigma", 1.5, 1.1, 2));
 	gui.add(fbUseGaussian.set("fbUseGaussian", false));
-	gui.add(fbWinSize.set("winSize", 32, 4, 64));
-	curFlow = &fb;
+
+	flowFB.setup(W, H,
+				 fbPyrScale,
+				 fbLevels,
+				 fbWinSize,
+				 fbIterations,
+				 fbPolyN,
+				 fbPolySigma,
+				 false,
+				 fbUseGaussian);
+	
+	//	gui.add(lkMaxLevel.set("lkMaxLevel", 3, 0, 8));
+	//	gui.add(lkMaxFeatures.set("lkMaxFeatures", 200, 1, 1000));
+	//	gui.add(lkQualityLevel.set("lkQualityLevel", 0.01, 0.001, .02));
+	//	gui.add(lkMinDistance.set("lkMinDistance", 4, 1, 16));
+	//	gui.add(lkWinSize.set("lkWinSize", 8, 4, 64));
+	//	gui.add(usefb.set("Use Farneback", true));
+//	curFlow = &fb;
 
 	// camera params
     gui.add(exposureCompensation.set("exposure compensation",0,-10,10));
@@ -65,6 +91,8 @@ void ofApp::setup(){
 	fps.addListener(this, &ofApp::fpsChanged);
 	learningTime.addListener(this, &ofApp::learningTimeChanged);
 	backgroundThreshold.addListener(this, &ofApp::backgroundThresholdChanged);
+	useOpticalFlow.addListener(this, &ofApp::useOpticalFlowChanged);
+	
 #ifdef __arm__
 	roiX.addListener(this, &ofApp::roiXChanged);
 	roiY.addListener(this, &ofApp::roiYChanged);
@@ -111,24 +139,20 @@ void ofApp::setup(){
 	flickerAvoids[4]	= "Max";
 */
 	
-	// camera Grabber
-#ifdef __arm__
-    cam.setup(160,120,false);//setup camera (w,h,color = true,gray = false);
-    cam.setExposureMode(MMAL_PARAM_EXPOSUREMODE_FIXEDFPS);
-	// one of these two gives black during night time
-//    cam.setExposureCompensation(0);
-//    cam.setAWBMode(MMAL_PARAM_AWBMODE_OFF);
-#else
-    cam.initGrabber(160,120);
-#endif
-
 	// OSC
-    sender.setup("192.168.255.255", 8000);
-    //sender.setup("192.168.1.3", 8000);
+//    sender.setup("192.168.255.255", 8000);	//multicast
+//    sender.setup("192.168.1.3", 8000);		//one client
+	sender.setup("localhost", 8000);			//debugging
  	receiver.setup(OSC_PORT);
 	
-	//load params
+	
+#ifdef __arm__
 	filename_save = "RPi_" + RPiId + "_settings.xml";
+#else
+	filename_save = "settings.xml";
+#endif
+	
+	//load params
 	if(ofFile::doesFileExist(filename_save)){
 		ofLog(OF_LOG_NOTICE)<< "loading from file" + filename_save << endl;
 		gui.loadFromFile(filename_save);
@@ -152,12 +176,11 @@ void ofApp::update(){
 	
 	// IF running from RPi
 #ifdef __arm__
-    frame = Mat(cam.grab());
+    matInput = Mat(cam.grab());
     stringstream ss;
     ss << "rpi_" << RPiId << ".png";
     if(framenr % 100 == 0) {
-      toOf(frame,tosave);
-
+      toOf(matInput,tosave);
       ofSaveImage(tosave, ss.str());
     }
 
@@ -165,79 +188,110 @@ void ofApp::update(){
 #else
     string filename;
     filename = "images/file" + ofToString(framenr) + ".png";
-    image.loadImage(filename);
-    image.rotate90(2);
-	image.setImageType(OF_IMAGE_COLOR);
-    frame = toCv(image);
+    imageSequence.loadImage(filename);
+    imageSequence.rotate90(2);
+	imageSequence.setImageType(OF_IMAGE_GRAYSCALE);
+    matInput = ofxCv::toCv(imageSequence);
 #endif
 	
-    if (framenr == 130) {
-        background.reset();
-    }
+	if (!matInput.empty()) {
 
+		if (framenr == 130) {
+			background.reset();
+			cout << "background reset " << matInput.type() << endl;
+		}
+		if(matAccum.empty()) {
+			matInput.convertTo(matAccum, CV_32F);
+			cout << "matAccum init with type " << matInput.type() << endl;
+		}
 
-	if(accum.empty()) {
-		frame.convertTo(accum, CV_32F);
-		cout << "frameinit" << frame.type() << endl;
-	}
-
-	
-    if (!frame.empty()) {
-
+		
 		// Low pass filter
-        threshold( frame, frame, cutDown, 255, 2 );
-
+        threshold( matInput, matInput, cutDown, 255, 2 );
+		thresholded.setColor(ofColor(0));
+		
 		// Optical Flow
 		if (useOpticalFlow){
-			if(usefb) {
-				curFlow = &fb;
-				fb.setPyramidScale(fbPyrScale);
-				fb.setNumLevels(fbLevels);
-				fb.setWindowSize(fbWinSize);
-				fb.setNumIterations(fbIterations);
-				fb.setPolyN(fbPolyN);
-				fb.setPolySigma(fbPolySigma);
-				fb.setUseGaussian(fbUseGaussian);
-			} else {
-				curFlow = &lk;
-				lk.setMaxFeatures(lkMaxFeatures);
-				lk.setQualityLevel(lkQualityLevel);
-				lk.setMinDistance(lkMinDistance);
-				lk.setWindowSize(lkWinSize);
-				lk.setMaxLevel(lkMaxLevel);
+				// flow settings
+				flowFB.setPyramidScale(fbPyrScale);
+				flowFB.setPyramidLevels(fbLevels);
+				flowFB.setWindowSize(fbWinSize);
+				flowFB.setIterationsPerLevel(fbIterations);
+				flowFB.setExpansionArea(fbPolyN);
+				flowFB.setExpansionSigma(fbPolySigma);
+				flowFB.setGaussianFiltering(fbUseGaussian);
+
+				// compute flow
+				flowPix.setColor(ofColor(0));
+				flowFB.update(matInput.data, W, H, OF_IMAGE_GRAYSCALE);
+				flowFB.drawColoredX(flowPix, 10, 1, .95);
+				flowMat.setFromPixels(flowPix);
+
+			if(useAccum) {
+//						http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
+/*						cout << "matToProcess type " << matToProcess.type() << endl;
+						cout << "matToProcess W " << matToProcess.size[0] << endl;
+						cout << "matToProcess H " << matToProcess.size[1] << endl;
+				
+						cout << "matAccum type " << matAccum.type() << endl;
+						cout << "matAccum W " << matAccum.size[0] << endl;
+						cout << "matAccum H " << matAccum.size[1] << endl;
+*/
+				matToProcess=ofxCv::toCv(flowPix);
+				matAccum.convertTo(matAccum, CV_32F);
+				ofxCv::accumulateWeighted(matToProcess, matAccum, accumFactor);
+				matAccum.convertTo(matAccum, CV_8U);
+
+				//BG subtraction
+				background.update(matAccum, thresholded);
+//				ofxCv::toOf(matAccum, thresholded);
+			}else{
+//				thresholded.setFromPixels(flowPix);
+				//BG subtraction
+//				background.update(flowPix, thresholded);
+				thresholded.setFromPixels(flowPix);
+//				ofxCv::toOf(flowPix, thresholded);
 			}
-			curFlow->calcOpticalFlow(frame);
-		}
-		
-		// accumulate few frames in current frame in order to wipe out noise
-		if(useAccum) {
-			accum.convertTo(accum, CV_32F);
-			cv::accumulateWeighted(frame, accum, accumFactor);
-			accum.convertTo(accum, CV_8U);
-			// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
-			//		cout << "framein" << frame.type() << endl;
-			//		cout << "accumin" << accum.type() << endl;
-			
-			//BG subtraction
-			background.update(accum, thresholded);
-			thresholded.update();
+
+		// BG Subtraction
 		}else{
-			//BG subtraction
-			background.update(frame, thresholded);
-			thresholded.update();
+			// matAccumulate few frames in current frame to wipe out noise
+			if(useAccum) {
+				// http://ninghang.blogspot.no/2012/11/list-of-mat-type-in-opencv.html
+/*					cout << "frame type " << matInput.type() << endl;
+					cout << "frame W " << matInput.size[0] << endl;
+					cout << "frame H " << matInput.size[1] << endl;
+				
+					cout << "matAccum type " << matAccum.type() << endl;
+					cout << "matAccum W " << matAccum.size[0] << endl;
+					cout << "matAccum H " << matAccum.size[1] << endl;
+*/
+				matAccum.convertTo(matAccum, CV_32F);
+				cv::accumulateWeighted(matInput, matAccum, accumFactor);
+				matAccum.convertTo(matAccum, CV_8U);
+				
+				//BG subtraction
+				background.update(matAccum, thresholded);
+			}else{
+				//BG subtraction
+				background.update(matInput, thresholded);
+			}
 		}
 		
+		//Threshold
+//		thresholded.update();
+		matToProcess = ofxCv::toCv(thresholded);
+	
 		// Filter noise after threshold
-        frameProcessed = toCv(thresholded);
-        medianBlur ( frameProcessed, frameProcessed, medianBlurFactor );
-        erode( frameProcessed, frameProcessed, erodeFactor );
-        dilate( frameProcessed, frameProcessed, dilateFactor );
+		medianBlur ( matToProcess, matToProcess, medianBlurFactor );
+		ofxCv::erode( matToProcess, matToProcess, erodeFactor );
+        ofxCv::dilate( matToProcess, matToProcess, dilateFactor );
 
-        toOf(frameProcessed, pix);
-        grayImage.setFromPixels(pix);
+        ofxCv::toOf(matToProcess, pixProcessed);
+        toContours.setFromPixels(pixProcessed);
 
-        contourFinder.findContours(grayImage, minContourArea, maxContourArea, maxContours, true); // find holes
-
+        contourFinder.findContours(toContours, minContourArea, maxContourArea, maxContours, true); // find holes
+		
         ofxOscMessage numContours;
         stringstream addr;
         addr << "/RPi_" << RPiId << "/total_contours/";
@@ -255,10 +309,10 @@ void ofApp::update(){
             float height = contourFinder.blobs[i].boundingRect.height;
 
             //normalization
-            x = x / 160;
-            y = y / 120;
-            width = width / 160;
-            height = height / 120;
+            x = x / W;
+            y = y / H;
+            width = width / W;
+            height = height / H;
 
             //openGl standard
             x = x + width/2;
@@ -319,7 +373,7 @@ void ofApp::update(){
 			sender.sendMessage(sm);
 		}
 		else if(rm.getAddress() == "/resetBG" + RPiId){
-			frame.convertTo(accum, CV_32F);
+			matInput.convertTo(matAccum, CV_32F);
 			background.reset();
 		}
 		else if(rm.getAddress() == "/loadFromFile" + RPiId){
@@ -424,8 +478,8 @@ void ofApp::update(){
 			cam.setShutterSpeed(shutterSpeed);
 		}
 #endif
-
 	}
+
 }
 
 //-- Parameters events listeners
@@ -439,6 +493,10 @@ void ofApp::learningTimeChanged(int &learningTime) {
 void ofApp::backgroundThresholdChanged(int &backgroundThreshold) {
     background.setThresholdValue(backgroundThreshold);
 }
+void ofApp::useOpticalFlowChanged(bool &useOpticalFlow) {
+	background.reset();
+}
+
 #ifdef __arm__
 void ofApp::roiXChanged(float &roiX) {
 	ROI.x = roiX;
@@ -482,28 +540,52 @@ void ofApp::shutterSpeedChanged(int &shutterSpeed) {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//#ifdef __arm__
-    drawMat(frame,0,0,320,240);
-    drawMat(accum,640,0,320,240);
-	drawMat(frameProcessed,0,240,320,240);
-    thresholded.draw(320, 0,320,240);
-	curFlow->draw(640,240,320,240);
+	if (boolDraw){
+		
+		// Input image
+		ofxCv::drawMat(matInput,0, 0, 320, 240);
+		ofDrawBitmapStringHighlight("input image", 0, 20);
 
-    contourFinder.draw(320,240,320,240);
+		// Optical flow
+		if(useOpticalFlow){
+			flowMat.draw(0, 240, 320, 240);
+			ofDrawBitmapStringHighlight("Optical flow", 0, 260);
 
-    gui.draw();
-//#endif
+		//Background
+		}else{
+			ofxCv::drawMat(background.getBackground(), 0, 240, 320, 240);
+			ofDrawBitmapStringHighlight("Background", 0, 260);
+		}
+		// Accum
+		if (useAccum){
+			ofxCv::drawMat(matAccum, 320, 240, 320, 240);
+			ofDrawBitmapStringHighlight("Accum", 320, 260);
+		}
+		
+		// Filtered
+//		ofxCv::drawMat(matToProcess, 0, 480, 320, 240);
+		toContours.draw(0, 480, 320, 240);
+		ofDrawBitmapStringHighlight("Filtered", 0, 500);
+		
+		// Contours
+		contourFinder.draw(320,480,320,240);
+		ofDrawBitmapStringHighlight("Contours", 320, 500);
+
+		gui.draw();
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key){
     ofLogVerbose() << "keyPressed: " << key;
 
-    if(key == ' ') {
-		frame.convertTo(accum, CV_32F);
+	if(key == 'd') {
+		boolDraw=!boolDraw;
+	}
+	if(key == ' ') {
+//		matInput.convertTo(matAccum, CV_32F);
         background.reset();
     }
-
     if(key == 'r') {
         framenr = 1;
         ofLog()<< "restarting video";

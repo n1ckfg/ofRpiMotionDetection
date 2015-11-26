@@ -400,11 +400,11 @@ void ofApp::update(){
 			sm.addStringArg(RPiId);
 			sender.sendMessage(sm);
 		}
-		else if(rm.getAddress() == "/resetBG" + RPiId){
-			matInput.convertTo(matAccum, CV_32F);
+		else if(rm.getAddress() == "/resetBG"){
+//			matInput.convertTo(matAccum, CV_32F);
 			background.reset();
 		}
-		else if(rm.getAddress() == "/loadSettings" + RPiId){
+		else if(rm.getAddress() == "/loadSettings"){
 			if(ofFile::doesFileExist(filename_save)){
 				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
 				gui.loadFromFile(filename_save);
@@ -413,7 +413,7 @@ void ofApp::update(){
 				ofLog(OF_LOG_NOTICE) << "file " + filename_save + " does not exist" << endl;
 			}
 		}
-		else if(rm.getAddress() == "/loadDefaultSettings" + RPiId){
+		else if(rm.getAddress() == "/loadDefaultSettings"){
 			if(ofFile::doesFileExist("settings.xml")){
 				ofLog(OF_LOG_NOTICE) << "loading from file " + filename_save << endl;
 				gui.loadFromFile("settings.xml");

@@ -8,7 +8,7 @@
 	<medianBlur>3</medianBlur>
 	<minContourArea>5</minContourArea>
 	<maxContourArea>19200</maxContourArea>
-	<maxContours>5</maxContours>
+	<maxContours>3</maxContours>
 <exposure_compensation>0</exposure_compensation>
 	<exposure_metering_mode>0</exposure_metering_mode>
 	<exposure_mode>0</exposure_mode>

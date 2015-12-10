@@ -48,7 +48,7 @@ void ofApp::setup(){
 	gui.add(useAccum.set("useAccum", true));
 
 	// Optical Flow
-	gui.add(useOpticalFlow.set("Optical Flow (or BG Subtraction)", true));
+	gui.add(useOpticalFlow.set("useOpticalFlow", true));
 	gui.add(fbPyrScale.set("fbPyrScale", .5, 0, .99));
 	gui.add(fbLevels.set("fbLevels", 4, 1, 8));
 	gui.add(fbWinSize.set("winSize", 3, 4, 64));

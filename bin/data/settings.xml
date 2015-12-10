@@ -31,4 +31,5 @@
 	<fbPolySigma>1.5</fbPolySigma>
 	<fbUseGaussian>0</fbUseGaussian>
 	<Flicker_Avoid>0</Flicker_Avoid>
+<useOpticalFlow>1</useOpticalFlow>
 </panel>
